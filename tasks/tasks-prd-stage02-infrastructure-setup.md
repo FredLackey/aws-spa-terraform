@@ -1,0 +1,91 @@
+## Relevant Files
+
+- `iac/02-infra-setup/deploy.sh` - Main deployment script entry point that orchestrates all infrastructure provisioning.
+- `iac/02-infra-setup/destroy.sh` - Main destruction script that removes all Stage 02 resources in correct dependency order.
+- `iac/02-infra-setup/scripts/s3-operations.sh` - S3 bucket management functions including creation, configuration, and cleanup.
+- `iac/02-infra-setup/scripts/lambda-operations.sh` - Lambda function management functions for deployment and configuration.
+- `iac/02-infra-setup/scripts/cloudfront-operations.sh` - CloudFront distribution management functions with SSL and routing configuration.
+- `iac/02-infra-setup/scripts/app-operations.sh` - Application build and deployment functions for React and API components.
+- `iac/02-infra-setup/scripts/validation-functions.sh` - Resource validation functions including curl testing and status checking.
+- `iac/02-infra-setup/scripts/utils.sh` - Common utilities including logging, configuration management, and helper functions.
+
+### Notes
+
+- All scripts should be placed in the `iac/02-infra-setup/` directory following the established project structure.
+- Scripts must use AWS CLI v2 and bash, no Terraform allowed per project requirements.
+- All operations must be idempotent to allow unlimited deploy/destroy cycles.
+- Use established patterns from Stages 00-01 for configuration discovery and JSON processing.
+
+## Tasks
+
+- [ ] 1.0 Create Core Infrastructure Management Scripts
+  - [ ] 1.1 Create main deploy.sh script with parameter parsing (--cdn-price-class, --lambda-memory, --input-file, --help)
+  - [ ] 1.2 Create main destroy.sh script with resource identification and cleanup logic
+  - [ ] 1.3 Create scripts/utils.sh with logging, configuration discovery, and JSON processing functions
+  - [ ] 1.4 Implement AWS CLI authentication validation and prerequisite checks
+  - [ ] 1.5 Create configuration management functions to copy Stage 01 output to Stage 02 input
+  - [ ] 1.6 Implement timestamped logging system in logs/ directory
+- [ ] 2.0 Implement S3 Static Website Hosting Infrastructure
+  - [ ] 2.1 Create scripts/s3-operations.sh with S3 bucket management functions
+  - [ ] 2.2 Implement timestamp generation (YYYYMMDDHHMMSS) for unique bucket naming
+  - [ ] 2.3 Create S3 bucket with name pattern {project-prefix}-webapp-{environment}-{timestamp}
+  - [ ] 2.4 Configure static website hosting on S3 bucket
+  - [ ] 2.5 Apply bucket policy for public read access and CloudFront integration
+  - [ ] 2.6 Implement S3 bucket tagging with Project and Environment tags
+  - [ ] 2.7 Create idempotency checks for existing S3 buckets
+- [ ] 3.0 Implement Lambda Function Deployment Infrastructure
+  - [ ] 3.1 Create scripts/lambda-operations.sh with Lambda management functions
+  - [ ] 3.2 Create Lambda execution role with basic permissions and CloudWatch logging
+    - [ ] 3.2.1 Create IAM role with basic Lambda execution permissions
+    - [ ] 3.2.2 Add CloudWatch logging permissions for API error tracking
+    - [ ] 3.2.3 Apply proper resource tagging to IAM role
+  - [ ] 3.3 Create Lambda function with name pattern {project-prefix}-api-{environment}
+  - [ ] 3.4 Configure Lambda runtime (Node.js 20.x), memory (configurable 128-10240MB), and timeout (30s)
+  - [ ] 3.5 Implement Lambda function tagging with Project and Environment tags
+  - [ ] 3.6 Create idempotency checks and configuration validation for existing Lambda functions
+- [ ] 4.0 Implement CloudFront Distribution with SSL and Routing
+  - [ ] 4.1 Create scripts/cloudfront-operations.sh with CloudFront management functions
+  - [ ] 4.2 Create CloudFront distribution with custom domain from Stage 01 configuration
+  - [ ] 4.3 Configure SSL certificate using certificate_arn from Stage 01
+  - [ ] 4.4 Implement configurable price class (default PriceClass_100)
+  - [ ] 4.5 Create default behavior routing "/" to S3 bucket origin
+  - [ ] 4.6 Create path behavior routing "/api/*" to Lambda function origin
+  - [ ] 4.7 Configure wildcard CORS access from any origin
+  - [ ] 4.8 Implement CloudFront distribution tagging and wait loops for deployment completion (25-minute timeout)
+    - [ ] 4.8.1 Implement continuous status polling with progress indicators
+    - [ ] 4.8.2 Add 25-minute timeout with error detection (not just waiting)
+    - [ ] 4.8.3 Block subsequent steps until CloudFront deployment validates as successful
+  - [ ] 4.9 Create idempotency checks and configuration validation for existing distributions
+- [ ] 5.0 Implement Application Build and Deployment System
+  - [ ] 5.1 Create scripts/app-operations.sh with application deployment functions
+  - [ ] 5.2 Implement React application build process (npm install, npm run build) for packages/placeholder-react-app/
+  - [ ] 5.3 Upload React build artifacts to S3 bucket with appropriate content types
+  - [ ] 5.4 Implement API application packaging (npm install, zip creation) for packages/placeholder-api/
+  - [ ] 5.5 Deploy API package to Lambda function and update configuration
+  - [ ] 5.6 Implement old S3 bucket cleanup after successful CloudFront validation
+    - [ ] 5.6.1 Validate CloudFront is serving content from new bucket before cleanup
+    - [ ] 5.6.2 Identify and remove all old timestamped buckets for project/environment
+    - [ ] 5.6.3 Implement safety checks to prevent active bucket deletion
+- [ ] 6.0 Implement Deployment Validation and Testing
+  - [ ] 6.1 Create scripts/validation-functions.sh with resource validation functions
+  - [ ] 6.2 Implement S3 bucket existence and accessibility validation
+  - [ ] 6.3 Implement Lambda function existence and active status validation
+  - [ ] 6.4 Implement CloudFront distribution deployment and SSL configuration validation
+  - [ ] 6.5 Implement end-to-end curl testing for "/" route (S3/React) and "/api/*" route (Lambda)
+  - [ ] 6.6 Create enhanced configuration output with all Stage 01 data plus Stage 02 resource information
+    - [ ] 6.6.1 Preserve all Stage 01 configuration data in output
+    - [ ] 6.6.2 Add required Stage 02 fields: s3_bucket_name, s3_bucket_arn, s3_website_url, lambda_function_name, lambda_function_arn, cloudfront_distribution_id, cloudfront_distribution_arn, cloudfront_domain_name, application_url
+    - [ ] 6.6.3 Validate output JSON format and field completeness
+  - [ ] 6.7 Implement step-by-step validation checkpoints throughout deploy.sh execution
+- [ ] 7.0 Implement Development Completion Validation
+  - [ ] 7.1 Test bidirectional deploy/destroy cycle repeatability
+    - [ ] 7.1.1 Verify deploy.sh → destroy.sh → deploy.sh cycle works repeatedly
+    - [ ] 7.1.2 Ensure all operations complete without errors in sequence
+  - [ ] 7.2 Verify complete resource cleanup in destroy.sh
+    - [ ] 7.2.1 Ensure destroy.sh removes ALL Stage 02 resources
+    - [ ] 7.2.2 Validate destroy.sh handles resource dependencies correctly
+    - [ ] 7.2.3 Test destroy.sh idempotency (can run multiple times safely)
+  - [ ] 7.3 Validate destroy.sh dependency handling and idempotency
+    - [ ] 7.3.1 Test destroy.sh with partial deployments
+    - [ ] 7.3.2 Verify proper error handling when resources don't exist
+    - [ ] 7.3.3 Confirm development completion criteria are met before declaring stage complete
