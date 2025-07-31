@@ -1,0 +1,11 @@
+---
+description: 
+globs: */src/**/*
+alwaysApply: false
+---
+- Data Repositories Root Folder: %API_NAME%/src/data/repos
+- JSON Schema Documents: %API_NAME%/src/data/schemas
+- UX Routes Root Folder (called by UI): %API_NAME%/src/routes/ux
+- API Routes Root Folder (called by other APIs): %API_NAME%/src/routes/api
+- Open API Documents Root Folder (called by other APIs): %API_NAME%/src/routes/openapi
+- Helper Utilities: %API_NAME%/src/utils

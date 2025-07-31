@@ -20,6 +20,7 @@ PROJECT_PREFIX=""
 INFRA_PROFILE=""
 HOSTING_PROFILE=""
 DOMAIN=""
+VPC_ID=""
 
 # Usage function
 show_usage() {
@@ -33,13 +34,14 @@ Required Arguments:
   -i, --infra-profile     AWS profile for infrastructure account
   -h, --hosting-profile   AWS profile for hosting account
   -d, --domain            Fully qualified domain name for the application
+  -v, --vpc-id            Target VPC ID for deployment
 
 Optional Arguments:
   --help                 Show this help message
 
 Examples:
-  $0 -e DEV -r us-east-1 -p myapp -i infra -h hosting -d dev-app.example.com
-  $0 --environment PROD --region us-west-2 --project-prefix myapp --infra-profile infrastructure --hosting-profile hosting --domain app.example.com
+  $0 -e DEV -r us-east-1 -p myapp -i infra -h hosting -d dev-app.example.com -v vpc-12345abcd
+  $0 --environment PROD --region us-west-2 --project-prefix myapp --infra-profile infrastructure --hosting-profile hosting --domain app.example.com --vpc-id vpc-67890efgh
 
 EOF
 }
@@ -72,6 +74,10 @@ parse_arguments() {
                 DOMAIN="$2"
                 shift 2
                 ;;
+            -v|--vpc-id)
+                VPC_ID="$2"
+                shift 2
+                ;;
             --help)
                 show_usage
                 exit 0
@@ -95,6 +101,7 @@ validate_arguments() {
     [[ -z "$INFRA_PROFILE" ]] && missing_args+=("--infra-profile")
     [[ -z "$HOSTING_PROFILE" ]] && missing_args+=("--hosting-profile")
     [[ -z "$DOMAIN" ]] && missing_args+=("--domain")
+    [[ -z "$VPC_ID" ]] && missing_args+=("--vpc-id")
     
     if [[ ${#missing_args[@]} -gt 0 ]]; then
         echo -e "${RED}Error: Missing required arguments: ${missing_args[*]}${NC}"
@@ -117,9 +124,15 @@ validate_arguments() {
         echo -e "${RED}Error: Project prefix must be lowercase alphanumeric characters only${NC}"
         exit 1
     fi
+    
+    # Validate VPC ID format
+    if [[ ! "$VPC_ID" =~ ^vpc-[a-f0-9]{8,17}$ ]]; then
+        echo -e "${RED}Error: VPC ID must be in format vpc-xxxxxxxx (8-17 hex characters)${NC}"
+        exit 1
+    fi
 }
 
-# Log function
+# Log function - all output goes to stderr to avoid contaminating command substitution
 log() {
     local level=$1
     shift
@@ -128,16 +141,16 @@ log() {
     
     case $level in
         INFO)
-            echo -e "${GREEN}[INFO]${NC} $message"
+            echo -e "${GREEN}[INFO]${NC} $message" >&2
             ;;
         WARN)
-            echo -e "${YELLOW}[WARN]${NC} $message"
+            echo -e "${YELLOW}[WARN]${NC} $message" >&2
             ;;
         ERROR)
-            echo -e "${RED}[ERROR]${NC} $message"
+            echo -e "${RED}[ERROR]${NC} $message" >&2
             ;;
         DEBUG)
-            echo -e "${BLUE}[DEBUG]${NC} $message"
+            echo -e "${BLUE}[DEBUG]${NC} $message" >&2
             ;;
     esac
     
@@ -169,9 +182,9 @@ validate_aws_profile() {
         fi
     fi
     
-    # Extract account ID
+    # Extract account ID (redirect stderr to avoid contamination)
     local account_id
-    account_id=$(aws sts get-caller-identity --profile "$profile" --query 'Account' --output text)
+    account_id=$(aws sts get-caller-identity --profile "$profile" --query 'Account' --output text 2>/dev/null)
     
     if [[ -z "$account_id" ]]; then
         log ERROR "Failed to extract account ID for profile '$profile'"
@@ -179,7 +192,9 @@ validate_aws_profile() {
     fi
     
     log INFO "Successfully validated $profile_type account: $account_id"
-    echo "$account_id"
+    
+    # Return only the account ID on stdout
+    printf "%s" "$account_id"
 }
 
 # Validate Route 53 hosted zone (REQUIRED)
@@ -187,46 +202,64 @@ validate_hosted_zone() {
     local domain=$1
     local profile=$2
     
-    # Extract top-level domain (everything after the first dot)
-    local tld
-    if [[ "$domain" == *.* ]]; then
-        tld="${domain#*.}"
-    else
-        tld="$domain"
-    fi
+    log INFO "Validating required Route 53 hosted zone for domain: $domain"
     
-    log INFO "Validating required Route 53 hosted zone for domain: $tld"
+    # Build array of domains to check, from most specific to least specific
+    local domains_to_check=()
+    local current_domain="$domain"
     
-    # Check if hosted zone exists
-    local zone_id
-    zone_id=$(aws route53 list-hosted-zones --profile "$profile" \
-        --query "HostedZones[?Name=='${tld}.'].Id" --output text 2>/dev/null || true)
+    # Add the full domain first
+    domains_to_check+=("$current_domain")
     
-    if [[ -n "$zone_id" && "$zone_id" != "None" ]]; then
-        log INFO "✓ Found required Route 53 hosted zone for $tld: $zone_id"
-        return 0
-    else
-        log ERROR "✗ REQUIRED Route 53 hosted zone NOT found for $tld in infrastructure account"
-        log ERROR "The hosted zone for $tld must exist before deployment can proceed"
-        log ERROR "Subsequent stages will need to create DNS records and cannot continue without this zone"
-        log ERROR ""
-        log ERROR "To resolve this issue:"
-        log ERROR "1. Create a hosted zone for $tld in the infrastructure account"
-        log ERROR "2. Ensure proper DNS delegation is configured"
-        log ERROR "3. Re-run this discovery stage"
-        return 1
-    fi
+    # Extract parent domains (remove subdomains one by one)
+    while [[ "$current_domain" == *.* ]]; do
+        current_domain="${current_domain#*.}"
+        domains_to_check+=("$current_domain")
+    done
+    
+    # Check each domain level for a hosted zone
+    for check_domain in "${domains_to_check[@]}"; do
+        log INFO "Checking for hosted zone: $check_domain"
+        
+        local zone_id
+        zone_id=$(aws route53 list-hosted-zones --profile "$profile" \
+            --query "HostedZones[?Name=='${check_domain}.'].Id" --output text 2>/dev/null || true)
+        
+        if [[ -n "$zone_id" && "$zone_id" != "None" ]]; then
+            log INFO "✓ Found required Route 53 hosted zone for $check_domain: $zone_id"
+            if [[ "$check_domain" != "$domain" ]]; then
+                log INFO "  Domain $domain will use parent hosted zone: $check_domain"
+            fi
+            return 0
+        fi
+    done
+    
+    # If we get here, no hosted zone was found at any level
+    log ERROR "✗ REQUIRED Route 53 hosted zone NOT found for $domain or any parent domains"
+    log ERROR "Checked domains: ${domains_to_check[*]}"
+    log ERROR "At least one hosted zone must exist before deployment can proceed"
+    log ERROR "Subsequent stages will need to create DNS records and cannot continue without a hosted zone"
+    log ERROR ""
+    log ERROR "To resolve this issue:"
+    log ERROR "1. Create a hosted zone for one of these domains in the infrastructure account:"
+    for check_domain in "${domains_to_check[@]}"; do
+        log ERROR "   - $check_domain"
+    done
+    log ERROR "2. Ensure proper DNS delegation is configured"
+    log ERROR "3. Re-run this discovery stage"
+    return 1
 }
 
 # Generate resource names for future stages
 generate_resource_names() {
-    local account_id=$1
-    local env_lower="${ENVIRONMENT,,}"
-    local prefix_lower="${PROJECT_PREFIX,,}"
+    local infra_account_id=$1
+    local hosting_account_id=$2
+    local env_lower=$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')
+    local prefix_lower=$(echo "$PROJECT_PREFIX" | tr '[:upper:]' '[:lower:]')
     
     # These are the names that future stages will use
-    TERRAFORM_BUCKET="terraform-state-${account_id}-${env_lower}"
-    TERRAFORM_TABLE="terraform-locks-${account_id}-${env_lower}"
+    TERRAFORM_BUCKET="terraform-state-${infra_account_id}-${env_lower}"
+    TERRAFORM_TABLE="terraform-locks-${infra_account_id}-${env_lower}"
     
     # Output file for next stage (includes project prefix for archival identification)
     OUTPUT_FILE="$SCRIPT_DIR/output/${prefix_lower}-config-${env_lower}.json"
@@ -252,7 +285,7 @@ generate_config_output() {
 {
   "project": {
     "prefix": "$PROJECT_PREFIX",
-    "environment": "${ENVIRONMENT,,}",
+    "environment": "$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')",
     "region": "$REGION"
   },
   "aws": {
@@ -262,12 +295,13 @@ generate_config_output() {
     "hosting_account_id": "$hosting_account_id"
   },
   "domain": "$DOMAIN",
+  "vpc_id": "$VPC_ID",
   "terraform": {
     "backend_bucket": "$TERRAFORM_BUCKET",
     "backend_table": "$TERRAFORM_TABLE"
   },
   "resource_naming": {
-    "local_path": "$PROJECT_PREFIX/${ENVIRONMENT,,}",
+    "local_path": "$PROJECT_PREFIX/$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')",
     "stage": "$STAGE_NAME"
   },
   "discovery": {
@@ -282,11 +316,13 @@ EOF
 
 # Check if stage is already configured
 check_stage_state() {
+    local output_file=$1
+    
     log INFO "Checking if stage $STAGE_NAME is already configured for environment $ENVIRONMENT"
     
     # Check if output file exists and is recent
-    if [[ -f "$OUTPUT_FILE" ]]; then
-        log INFO "Stage appears to already be configured. Output file exists: $OUTPUT_FILE"
+    if [[ -f "$output_file" ]]; then
+        log INFO "Stage appears to already be configured. Output file exists: $output_file"
         log INFO "Re-running configuration with current parameters"
     else
         log INFO "Stage not yet configured. Proceeding with initial setup"
@@ -306,16 +342,16 @@ main() {
     parse_arguments "$@"
     validate_arguments
     
-    # Check stage state
-    check_stage_state
-    
     # Validate AWS profiles and extract account IDs
     log INFO "Validating AWS profiles and SSO sessions"
     INFRA_ACCOUNT_ID=$(validate_aws_profile "$INFRA_PROFILE" "infrastructure")
     HOSTING_ACCOUNT_ID=$(validate_aws_profile "$HOSTING_PROFILE" "hosting")
     
     # Generate resource names that future stages will use
-    generate_resource_names "$INFRA_ACCOUNT_ID"
+    generate_resource_names "$INFRA_ACCOUNT_ID" "$HOSTING_ACCOUNT_ID"
+    
+    # Check stage state now that we have the output file path
+    check_stage_state "$OUTPUT_FILE"
     
     # Validate hosted zone (REQUIRED - blocking)
     log INFO "Validating required Route 53 hosted zone"
@@ -338,6 +374,7 @@ main() {
     log INFO "  - Environment: $ENVIRONMENT"
     log INFO "  - Region: $REGION"
     log INFO "  - Application Domain: $DOMAIN"
+    log INFO "  - VPC ID: $VPC_ID"
     log INFO ""
     log INFO "Next steps:"
     log INFO "  1. Review generated configuration file: $OUTPUT_FILE"

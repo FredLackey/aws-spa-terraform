@@ -33,6 +33,7 @@ Stage 00-discovery is the initial configuration and validation phase of the AWS 
 | `--infra-profile` | `-i` | Infrastructure account AWS profile | `infrastructure-account` |
 | `--hosting-profile` | `-h` | Hosting account AWS profile | `hosting-account` |
 | `--domain` | `-d` | Application domain (FQDN) | `dev-app.example.com`, `app.example.com` |
+| `--vpc-id` | `-v` | Target VPC ID for deployment | `vpc-12345abcd`, `vpc-67890efgh` |
 
 ## Usage Examples
 
@@ -45,10 +46,11 @@ Stage 00-discovery is the initial configuration and validation phase of the AWS 
   --project-prefix myapp \
   --infra-profile infrastructure \
   --hosting-profile hosting \
-  --domain dev-app.example.com
+  --domain dev-app.example.com \
+  --vpc-id vpc-12345abcd
 
 # Short argument names
-./deploy.sh -e PROD -r us-west-2 -p myapp -i infra -h hosting -d app.example.com
+./deploy.sh -e PROD -r us-west-2 -p myapp -i infra -h hosting -d app.example.com -v vpc-67890efgh
 ```
 
 ### Destroy Stage (Cleanup)
@@ -73,6 +75,7 @@ Stage 00-discovery is the initial configuration and validation phase of the AWS 
 
 ### 3. Domain Validation (REQUIRED)
 - **Validates Route 53 hosted zone exists** for the application domain in the infrastructure account
+- **Supports subdomains** - checks for hosted zones at multiple levels (e.g., for `app.dev.example.com`, checks `app.dev.example.com`, then `dev.example.com`, then `example.com`)
 - **BLOCKS deployment if hosted zone is missing** - this is a hard requirement
 - Subsequent stages will create DNS records and cannot proceed without the hosted zone
 - **Does NOT create or modify any DNS resources**
@@ -133,7 +136,7 @@ This stage **does NOT create any AWS resources**. It only:
 
 ### Read-Only Operations Performed
 - `aws sts get-caller-identity` - Validate profiles and extract account IDs
-- `aws route53 list-hosted-zones` - **VALIDATE** existing hosted zone for the application domain (REQUIRED)
+- `aws route53 list-hosted-zones` - **VALIDATE** existing hosted zone for the application domain or parent domains (REQUIRED)
 
 ## State Management
 
@@ -162,14 +165,52 @@ This stage does not use Terraform and has no state to manage.
 - Fails fast on validation errors
 - Graceful handling of missing dependencies
 
+## Inter-Stage Data Flow
+
+Stage 00-discovery creates the foundation configuration that flows through the entire deployment pipeline:
+
+### Output for Next Stage
+- **Creates**: `output/{project-prefix}-config-{environment}.json`
+- **Contains**: Validated project parameters, AWS account information, domain configuration
+- **Used by**: Stage 01-infra-foundation as input baseline
+
+### How Subsequent Stages Use This Output
+1. **Stage 01-infra-foundation starts**:
+   ```bash
+   cd ../01-infra-foundation
+   ./deploy.sh -e DEV
+   ```
+2. **Automatic input preparation**:
+   - Copies `../00-discovery/output/{project-prefix}-config-{environment}.json` 
+   - To `01-infra-foundation/input/{project-prefix}-config-{environment}.json`
+3. **Configuration enhancement**:
+   - Loads discovery configuration (including VPC ID, domain, AWS accounts)
+   - Discovers existing SSL certificate OR creates new certificate for domain
+   - Uses VPC ID from discovery config for infrastructure placement
+   - Validates compatibility and enhances configuration
+4. **Creates enhanced output**:
+   - `01-infra-foundation/output/{project-prefix}-config-{environment}.json`
+   - Contains discovery data + certificate ARN + infrastructure foundation data
+
+### Custom Input Source
+Stages can optionally use custom input files:
+```bash
+# Use specific discovery output
+cd ../01-infra-foundation  
+./deploy.sh -e DEV --input-file /path/to/custom-discovery-config.json
+
+# Use archived configuration
+./deploy.sh -e DEV --input-file s3://archive/myapp-config-dev-backup.json
+```
+
 ## Next Steps
 
 After successful completion of stage 00-discovery:
 
 1. **Review generated configuration file**: `output/{project-prefix}-config-{environment}.json`
 2. **Verify all parameters**: Check that collected information is correct
-3. **Proceed to stage 01-infra-foundation**: This stage will create actual AWS resources
-4. **Use generated configuration**: Subsequent stages will consume the discovery output
+3. **Proceed to stage 01-infra-foundation**: This stage will automatically use the discovery output
+4. **Pipeline continuation**: Each subsequent stage builds upon the previous stage's enhanced configuration
 
 ## Troubleshooting
 
@@ -181,9 +222,10 @@ After successful completion of stage 00-discovery:
    - **Check**: Verify profile configuration in `~/.aws/config`
 
 2. **Domain Validation Failures**
-   - **Problem**: Route 53 hosted zone not found for application domain
+   - **Problem**: Route 53 hosted zone not found for application domain or any parent domains
    - **Impact**: **BLOCKS deployment** - discovery stage will fail and exit
-   - **Action**: **REQUIRED** - Create hosted zone for the domain in infrastructure account before retrying
+   - **Action**: **REQUIRED** - Create hosted zone for the domain or a parent domain in infrastructure account before retrying
+   - **Note**: For subdomains like `app.dev.example.com`, you can create zones for `app.dev.example.com`, `dev.example.com`, or `example.com`
 
 3. **Permission Issues**
    - **Problem**: Insufficient permissions for read operations

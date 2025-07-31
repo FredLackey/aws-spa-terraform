@@ -1,0 +1,11 @@
+[0;34m[INFO][0m 2025-07-31 11:23:41 - Starting 01-infra-foundation stage destruction
+[0;34m[INFO][0m 2025-07-31 11:23:41 - Log file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/01-infra-foundation/logs/destroy-20250731-112341.log
+
+[0;34m===============================================================================[0m
+[0;34mInput Preparation[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:23:41 - Preparing configuration for destruction
+[0;34m[INFO][0m 2025-07-31 11:23:41 - Using specified input file: ./nonexistent.json
+[0;34m[INFO][0m 2025-07-31 11:23:41 - Loading configuration from: ./nonexistent.json
+[0;31m[ERROR][0m 2025-07-31 11:23:41 - Configuration file not found: ./nonexistent.json

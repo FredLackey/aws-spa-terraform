@@ -1,0 +1,171 @@
+# Task List: 01-infra-foundation Stage Implementation
+
+## Relevant Files
+
+- `iac/01-infra-foundation/deploy.sh` - Main deployment script implementing the 5-step execution pattern with AWS CLI commands ✅ CREATED
+- `iac/01-infra-foundation/destroy.sh` - Cleanup script for removing AWS resources created by this stage ✅ CREATED
+- `iac/01-infra-foundation/scripts/iam-operations.sh` - AWS CLI functions for cross-account IAM role discovery, creation, and validation ✅ CREATED
+- `iac/01-infra-foundation/scripts/certificate-operations.sh` - AWS CLI functions for SSL certificate discovery, creation, and DNS validation ✅ CREATED
+- `iac/01-infra-foundation/scripts/validation-functions.sh` - Resource validation and testing functions using AWS CLI ✅ CREATED
+- `iac/01-infra-foundation/scripts/utils.sh` - Common utility functions for logging, error handling, and configuration parsing ✅ CREATED
+- `iac/01-infra-foundation/config/trust-policy-template.json` - IAM trust policy template for cross-account roles ✅ CREATED
+- `iac/01-infra-foundation/config/iam-permissions-template.json` - IAM permissions policy template for cross-account operations ✅ CREATED
+- `iac/01-infra-foundation/docs/README.md` - Comprehensive documentation following 00-discovery README structure ✅ CREATED
+- `iac/01-infra-foundation/input/` - Directory for input configuration from stage 00-discovery (auto-populated) ✅ CREATED
+- `iac/01-infra-foundation/output/` - Directory for enhanced configuration output for stage 02-infra-setup ✅ CREATED
+- `iac/01-infra-foundation/logs/` - Directory for execution logs with timestamp-based naming ✅ CREATED
+
+### Notes
+
+- This stage uses pure AWS CLI and bash scripting with no Terraform components
+- All scripts must implement idempotent operations with "validate-before-create" principle
+- AWS SSO authentication validation is required before any operations
+- All resources must be tagged with Project and Environment mandatory tags
+
+## Tasks
+
+- [x] 1.0 Create Stage Directory Structure and Entry Points
+  - [x] 1.1 Create standardized folder structure (scripts/, config/, input/, output/, logs/, docs/)
+  - [x] 1.2 Create deploy.sh entry point with argument parsing and help documentation
+    - [x] 1.2.1 Implement standardized argument parsing for `--input-file` and `--help`
+    - [x] 1.2.2 Add usage documentation following product specification format
+    - [x] 1.2.3 Implement the 5-step execution pattern (Authentication, State Evaluation, Input Preparation, Infrastructure Operations, Output Generation)
+    - [x] 1.2.4 Add error handling with clear remediation instructions
+  - [x] 1.3 Create destroy.sh entry point with AWS resource cleanup logic
+    - [x] 1.3.1 Implement authentication validation before destruction
+    - [x] 1.3.2 Add dependency validation to check if subsequent stages depend on current resources
+    - [x] 1.3.3 Create AWS CLI resource deletion functions for IAM roles and certificates
+    - [x] 1.3.4 Implement state evaluation to skip destruction if resources already removed
+  - [x] 1.4 Implement input file discovery and copying from ../00-discovery/output/
+    - [x] 1.4.1 Create automatic discovery logic to find latest output file from stage 00
+    - [x] 1.4.2 Implement file copying from previous stage output to current stage input
+    - [x] 1.4.3 Add validation for input file existence and format
+    - [x] 1.4.4 Support custom input file path via `--input-file` argument
+  - [x] 1.5 Set up logging infrastructure with timestamp-based file naming
+    - [x] 1.5.1 Create logging functions with structured output format
+    - [x] 1.5.2 Implement timestamp-based log file naming (deploy-YYYYMMDD.log)
+    - [x] 1.5.3 Add log rotation and cleanup for old log files
+    - [x] 1.5.4 Create validation result logging with clear success/failure indicators
+
+- [x] 2.0 Implement Cross-Account IAM Role Management
+  - [x] 2.1 Create IAM role discovery functions using `aws iam get-role`
+    - [x] 2.1.1 Implement role existence checking with proper error handling for non-existent roles
+    - [x] 2.1.2 Create role name generation following `{project-prefix}/{environment}` pattern
+    - [x] 2.1.3 Add profile switching logic for cross-account operations
+    - [x] 2.1.4 Implement role ARN extraction and storage
+  - [x] 2.2 Implement trust policy validation and comparison logic
+    - [x] 2.2.1 Create trust policy template loading from config files
+    - [x] 2.2.2 Implement JSON comparison logic for existing vs. required trust policies
+    - [x] 2.2.3 Add trust policy parsing and validation functions
+    - [x] 2.2.4 Create mismatch detection and reporting
+  - [x] 2.3 Create IAM role creation functions with proper trust policies
+    - [x] 2.3.1 Implement `aws iam create-role` with trust policy document
+    - [x] 2.3.2 Add role description and path configuration
+    - [x] 2.3.3 Create assume role policy document generation
+    - [x] 2.3.4 Implement error handling for role creation conflicts
+  - [x] 2.4 Implement trust policy update functions using `aws iam put-role-policy`
+    - [x] 2.4.1 Create policy update logic for misconfigured trust relationships
+    - [x] 2.4.2 Implement backup of existing policies before updates
+    - [x] 2.4.3 Add policy update validation and rollback capability
+    - [x] 2.4.4 Create policy version management
+  - [x] 2.5 Add cross-account role assumption testing with `aws sts assume-role`
+    - [x] 2.5.1 Implement role assumption testing from infrastructure account
+    - [x] 2.5.2 Create temporary credential validation
+    - [x] 2.5.3 Add cross-account access verification
+    - [x] 2.5.4 Implement assumption timeout and retry logic
+  - [x] 2.6 Implement mandatory resource tagging for all IAM roles
+    - [x] 2.6.1 Create tag application using `aws iam tag-role`
+    - [x] 2.6.2 Implement Project and Environment tag assignment from configuration
+    - [x] 2.6.3 Add tag validation to ensure all required tags are applied
+    - [x] 2.6.4 Create tag consistency checking across resources
+
+- [x] 3.0 Implement SSL Certificate Discovery and Management
+  - [x] 3.1 Create certificate search functions using `aws acm list-certificates`
+    - [x] 3.1.1 Implement domain-based certificate filtering
+    - [x] 3.1.2 Create exact domain matching logic (exclude wildcards)
+    - [x] 3.1.3 Add certificate status checking and validation
+    - [x] 3.1.4 Implement certificate ARN extraction and storage
+  - [x] 3.2 Implement exact domain matching logic (no wildcards)
+    - [x] 3.2.1 Create domain comparison functions for exact FQDN matching
+    - [x] 3.2.2 Add wildcard certificate exclusion logic
+    - [x] 3.2.3 Implement domain validation against input configuration
+    - [x] 3.2.4 Create certificate selection logic when multiple matches exist
+  - [x] 3.3 Create certificate request functions with DNS validation
+    - [x] 3.3.1 Implement `aws acm request-certificate` with DNS validation method
+    - [x] 3.3.2 Add subject alternative names (SAN) configuration if needed
+    - [x] 3.3.3 Create certificate request validation and error handling
+    - [x] 3.3.4 Implement certificate ARN capture from request response
+  - [x] 3.4 Implement DNS validation record creation in Route 53
+    - [x] 3.4.1 Extract DNS validation records from certificate request
+    - [x] 3.4.2 Create Route 53 record set creation using `aws route53 change-resource-record-sets`
+    - [x] 3.4.3 Add hosted zone ID resolution and validation
+    - [x] 3.4.4 Implement DNS record cleanup for failed validations
+  - [x] 3.5 Add certificate validation polling and status checking
+    - [x] 3.5.1 Create polling logic using `aws acm describe-certificate`
+    - [x] 3.5.2 Implement timeout and retry mechanisms for validation waiting
+    - [x] 3.5.3 Add validation status reporting and progress indicators
+    - [x] 3.5.4 Create validation failure detection and error reporting
+  - [x] 3.6 Store certificate ARN in output configuration
+    - [x] 3.6.1 Add certificate information to output JSON structure
+    - [x] 3.6.2 Include certificate status and domain information
+    - [x] 3.6.3 Create certificate metadata for next stage consumption
+    - [x] 3.6.4 Implement certificate validation timestamp recording
+
+- [x] 4.0 Implement Resource Validation and Testing
+  - [x] 4.1 Create AWS SSO authentication validation functions
+    - [x] 4.1.1 Implement `aws sts get-caller-identity` for both infrastructure and hosting profiles
+    - [x] 4.1.2 Add SSO session validation and expiration checking
+    - [x] 4.1.3 Create automatic SSO login invocation for expired sessions
+    - [x] 4.1.4 Implement profile switching and validation
+  - [x] 4.2 Implement VPC accessibility validation in hosting account
+    - [x] 4.2.1 Create VPC existence validation using `aws ec2 describe-vpcs`
+    - [x] 4.2.2 Add VPC accessibility testing from infrastructure account
+    - [x] 4.2.3 Implement VPC permissions validation
+    - [x] 4.2.4 Create VPC metadata extraction and validation
+  - [x] 4.3 Create cross-account access testing functions
+    - [x] 4.3.1 Implement comprehensive role assumption testing
+    - [x] 4.3.2 Add resource access validation across accounts
+    - [x] 4.3.3 Create permission boundary testing
+    - [x] 4.3.4 Implement access logging and reporting
+  - [x] 4.4 Implement SSL certificate accessibility validation from both accounts
+    - [x] 4.4.1 Test certificate visibility from infrastructure account
+    - [x] 4.4.2 Validate certificate accessibility from hosting account
+    - [x] 4.4.3 Create certificate sharing validation
+    - [x] 4.4.4 Implement certificate usage permission testing
+  - [x] 4.5 Add hosted zone accessibility validation from infrastructure account
+    - [x] 4.5.1 Implement `aws route53 get-hosted-zone` validation
+    - [x] 4.5.2 Add cross-account hosted zone access testing
+    - [x] 4.5.3 Create DNS record management permission validation
+    - [x] 4.5.4 Implement hosted zone delegation validation
+  - [x] 4.6 Create comprehensive validation reporting with success/failure status
+    - [x] 4.6.1 Design validation report structure with clear success/failure indicators
+    - [x] 4.6.2 Implement validation result aggregation and summary
+    - [x] 4.6.3 Add detailed error reporting with remediation suggestions
+    - [x] 4.6.4 Create validation timestamp and execution context logging
+
+- [x] 5.0 Implement Configuration Management and Output Generation
+  - [x] 5.1 Create input configuration loading and validation functions
+    - [x] 5.1.1 Implement JSON parsing and validation for input configuration
+    - [x] 5.1.2 Add schema validation for required fields from stage 00-discovery
+    - [x] 5.1.3 Create configuration format validation and error reporting
+    - [x] 5.1.4 Implement configuration version compatibility checking
+  - [x] 5.2 Implement environment code and region extraction from input file
+    - [x] 5.2.1 Extract environment code from input configuration
+    - [x] 5.2.2 Extract AWS region from input configuration
+    - [x] 5.2.3 Validate environment code against supported values (SBX, DEV, TEST, UAT, STAGE, MO, PROD)
+    - [x] 5.2.4 Create region validation and AWS service availability checking
+  - [x] 5.3 Create configuration enhancement logic combining previous and new data
+    - [x] 5.3.1 Implement data merging logic preserving all previous stage data
+    - [x] 5.3.2 Add new infrastructure foundation data (IAM roles, certificates, hosted zones)
+    - [x] 5.3.3 Create data conflict resolution and validation
+    - [x] 5.3.4 Implement configuration versioning and metadata
+  - [x] 5.4 Implement output configuration file generation for stage 02 consumption
+    - [x] 5.4.1 Create enhanced JSON configuration with infrastructure foundation data
+    - [x] 5.4.2 Add proper file naming following `{project-prefix}-config-{environment}.json` pattern
+    - [x] 5.4.3 Implement output file validation and format checking
+    - [x] 5.4.4 Create output directory management and cleanup
+  - [x] 5.5 Add configuration schema validation and error handling
+    - [x] 5.5.1 Implement comprehensive input schema validation
+    - [x] 5.5.2 Add output schema validation before file creation
+    - [x] 5.5.3 Create detailed error messages for configuration issues
+    - [x] 5.5.4 Implement configuration backup and recovery mechanisms

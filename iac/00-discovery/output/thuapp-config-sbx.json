@@ -1,0 +1,27 @@
+{
+  "project": {
+    "prefix": "thuapp",
+    "environment": "sbx",
+    "region": "us-east-1"
+  },
+  "aws": {
+    "infrastructure_profile": "bh-infra",
+    "hosting_profile": "bh-fred-sandbox",
+    "infrastructure_account_id": "953082249352",
+    "hosting_account_id": "415730361381"
+  },
+  "domain": "thuapp.sbx.briskhaven.com",
+  "vpc_id": "vpc-0525f4b966f4e9a78",
+  "terraform": {
+    "backend_bucket": "terraform-state-953082249352-sbx",
+    "backend_table": "terraform-locks-953082249352-sbx"
+  },
+  "resource_naming": {
+    "local_path": "thuapp/sbx",
+    "stage": "00-discovery"
+  },
+  "discovery": {
+    "timestamp": "2025-07-31T12:21:18Z",
+    "validation_complete": true
+  }
+}
