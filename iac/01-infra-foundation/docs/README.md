@@ -186,23 +186,22 @@ Expected from stage 00-discovery:
 Enhanced configuration for stage 02:
 ```json
 {
-  // ... all input data preserved ...
-  "resource_naming": {
-    "stage": "01-infra-foundation"
+  "project": {
+    "prefix": "myapp",
+    "environment": "sbx",
+    "region": "us-east-1"
   },
-  "foundation": {
-    "timestamp": "2024-01-01T12:00:00Z",
-    "infrastructure_complete": true,
-    "iam_roles": {
-      "cross_account_role_arn": "arn:aws:iam::123456789013:role/myapp-sbx-cross-account-role",
-      "validation_complete": true
-    },
-    "ssl_certificate": {
-      "certificate_arn": "arn:aws:acm:us-east-1:123456789013:certificate/12345678-1234-1234-1234-123456789012",
-      "domain": "myapp.sbx.example.com",
-      "validation_complete": true
-    }
-  }
+  "aws": {
+    "infrastructure_profile": "infra-profile",
+    "hosting_profile": "hosting-profile", 
+    "infrastructure_account_id": "123456789012",
+    "hosting_account_id": "123456789013"
+  },
+  "domain": "myapp.sbx.example.com",
+  "vpc_id": "vpc-xxxxxxxxx",
+  "certificate_arn": "arn:aws:acm:us-east-1:123456789013:certificate/12345678-1234-1234-1234-123456789012",
+  "cross_account_role_arn": "arn:aws:iam::123456789013:role/myapp-sbx-cross-account-role",
+  "hosted_zone_id": "Z1234567890123"
 }
 ```
 

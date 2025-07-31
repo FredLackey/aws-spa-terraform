@@ -20,7 +20,7 @@ This is a demonstration React application for AWS SPA Terraform infrastructure t
 
 ### Prerequisites
 
-- Node.js >= 18.0.0
+- Node.js >= 20.0.0
 - npm or yarn
 
 ### Installation

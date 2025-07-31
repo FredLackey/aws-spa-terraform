@@ -112,18 +112,7 @@ Stage 00-discovery is the initial configuration and validation phase of the AWS 
     "hosting_account_id": "222222222222"
   },
   "domain": "dev-app.example.com",
-  "terraform": {
-    "backend_bucket": "terraform-state-111111111111-dev",
-    "backend_table": "terraform-locks-111111111111-dev"
-  },
-  "resource_naming": {
-    "local_path": "myapp/dev",
-    "stage": "00-discovery"
-  },
-  "discovery": {
-    "timestamp": "2024-01-15T10:30:00Z",
-    "validation_complete": true
-  }
+  "vpc_id": "vpc-12345abcd"
 }
 ```
 

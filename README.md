@@ -61,13 +61,14 @@ cd ../01-infra-foundation
 # → Uses AWS CLI to discover/create IAM roles and SSL certificates
 # → Creates: output/myapp-config-dev.json (enhanced with certificate ARN, role ARNs)
 
-# Stage 02-infra-setup: Configure application infrastructure
+# Stage 02-infra-setup: Configure application infrastructure (AWS CLI)
 cd ../02-infra-setup  
 ./deploy.sh --cdn-price-class PriceClass_100 --lambda-memory 512
 # → Copies: ../01-infra-foundation/output/myapp-config-dev.json → input/myapp-config-dev.json
 # → Extracts environment and region from input configuration
-# → Uses certificate ARN and VPC from previous stages
-# → Creates: output/myapp-config-dev.json (enhanced with app settings)
+# → Uses AWS CLI to create CloudFront, Lambda, and S3 resources
+# → Deploys placeholder applications for infrastructure testing
+# → Creates: output/myapp-config-dev.json (enhanced with app infrastructure)
 ```
 
 ### Flexible Input Sources
@@ -83,9 +84,9 @@ Each stage supports custom input via `--input-file`:
 ## Architecture
 
 ```
-CloudFront (React SPA) → API Gateway → Lambda (Node.js API)
-     ↓
-S3 (Static Assets)
+CloudFront Distribution
+├── / → S3 Bucket (React SPA)
+└── /api/* → Lambda (Node.js API)
 ```
 
 Domain routing via CloudFront behaviors:
@@ -149,10 +150,10 @@ These paired applications demonstrate how to:
 ├── iac/               # Infrastructure as Code stages
 │   ├── 00-discovery/  # Project configuration (AWS CLI)
 │   ├── 01-infra-foundation/  # Infrastructure foundation (AWS CLI)
-│   ├── 02-infra-setup/       # Infrastructure setup (Terraform)
+│   ├── 02-infra-setup/       # Application infrastructure (AWS CLI)
 │   ├── 03-app-deploy/        # Application deployment (Terraform)
 │   └── 04-prod-deploy/       # Production deployment (Terraform)
 └── docs/              # Documentation
 ```
 
-Each stage contains deployment scripts that can be executed in sequence to build the complete infrastructure. Stage 00 and 01 use AWS CLI for resource discovery and creation, while stages 02+ use Terraform for application infrastructure management.
+Each stage contains deployment scripts that can be executed in sequence to build the complete infrastructure. Stages 00, 01, and 02 use AWS CLI for resource discovery and creation, while stages 03+ use Terraform for application deployment management.

@@ -26,8 +26,8 @@ The monorepo implements a **progressive configuration enhancement pattern** wher
 3. **Stage N+1 Enhancement**:
    - Accepts additional parameters via command line arguments
    - Validates new parameters against existing configuration
-   - Enhances configuration with stage-specific data
-4. **Stage N+1 Completion**: Creates enhanced `output/{project-prefix}-config-{environment}.json` for next stage
+   - Adds new stage-specific data directly to the existing configuration structure
+4. **Stage N+1 Completion**: Creates enhanced `output/{project-prefix}-config-{environment}.json` with all previous data plus new additions
 
 ### Configuration Evolution Example
 ```bash
@@ -41,15 +41,15 @@ The monorepo implements a **progressive configuration enhancement pattern** wher
 # 2. Extracts environment (DEV) and region from input configuration
 # 3. Uses VPC ID from discovery config
 # 4. Discovers existing SSL certificate OR creates new certificate for domain
-# 5. Creates: output/myapp-config-dev.json (enhanced with certificate ARN, hosted zone details)
+# 5. Creates: output/myapp-config-dev.json (enhanced with certificate ARN, cross-account role ARN, hosted zone ID)
 
-# Stage 02-infra-setup - Configure application infrastructure  
+# Stage 02-infra-setup - Configure application infrastructure (AWS CLI)
 ./deploy.sh --cdn-price-class PriceClass_100 --lambda-memory 512
 # 1. Copies: ../01-infra-foundation/output/myapp-config-dev.json → input/myapp-config-dev.json
 # 2. Extracts environment (DEV) and region from input configuration
-# 3. Uses certificate ARN and VPC from previous stages
-# 4. Applies CDN and Lambda configuration parameters
-# 5. Creates: output/myapp-config-dev.json (enhanced with application settings)
+# 3. Uses AWS CLI to create CloudFront, Lambda, and S3 resources
+# 4. Deploys placeholder applications for infrastructure testing
+# 5. Creates: output/myapp-config-dev.json (enhanced with S3, Lambda, CloudFront details and application URL)
 ```
 
 ### Flexible Input Sourcing
@@ -91,11 +91,11 @@ The following principles guide all implementation decisions throughout the monor
 
 ### Infrastructure as Code Standards  
 - **Stage-Appropriate Tooling**: 
-  - Stages 00-discovery and 01-infra-foundation use pure AWS CLI and bash scripting
-  - Stages 02+ use Terraform for infrastructure provisioning
+  - Stages 00-discovery, 01-infra-foundation, and 02-infra-setup use pure AWS CLI and bash scripting
+  - Stages 03+ use Terraform for application deployment and management
 - **State Management**: 
-  - AWS CLI stages (00, 01) use JSON configuration files for state tracking
-  - Terraform stages (02+) maintain independent Terraform state files
+  - AWS CLI stages (00, 01, 02) use JSON configuration files for state tracking
+  - Terraform stages (03+) maintain independent Terraform state files
 - **Folder Structure**: The `terraform/` folder is excluded from stages that use pure AWS CLI
 - **Idempotent Operations**: All deployment operations can be safely re-executed
 
@@ -103,7 +103,7 @@ The following principles guide all implementation decisions throughout the monor
 - **Existence Validation**: Always check if resources exist before attempting creation
 - **Update Detection**: Evaluate whether existing resources require modification
 - **Stage 01 Discovery Pattern**: Use AWS CLI with discovery-first approach for foundational resources
-- **Terraform Integration**: Leverage Terraform's built-in state management for application infrastructure (Stage 02+)
+- **Terraform Integration**: Leverage Terraform's built-in state management for application deployment (Stage 03+)
 - **No Redundant Operations**: Skip unnecessary operations when desired state already exists
 - **Safe Re-execution**: All scripts can be run multiple times without adverse effects
 
@@ -413,7 +413,7 @@ A successful implementation will demonstrate:
 ### Prerequisites
 - AWS CLI configured with appropriate permissions
 - Terraform >= 1.0
-- Node.js >= 18.0
+- Node.js >= 20.0
 - npm or yarn package manager
 - Git for version control
 
@@ -461,13 +461,12 @@ The deployment requires permissions for:
 ### Stage 2: Infrastructure Setup (02-infra-setup)
 **Formal Name**: 02-infra-setup
 **Owner**: DevOps Team
-**Implementation**: Terraform-based infrastructure provisioning
-- Application infrastructure creation (CloudFront, Lambda, API Gateway)
-- Application DNS record creation (using certificate ARN from Stage 01)
-- Placeholder application creation (simple demo API/SPA for infrastructure testing)
-- Infrastructure automation development
-- CI/CD pipeline setup
-- Monitoring and logging configuration
+**Implementation**: AWS CLI and bash scripting (following pattern from Stages 00-01)
+- Application infrastructure creation (CloudFront, Lambda, S3 - no API Gateway needed)
+- CloudFront behaviors configuration for SPA routing (/ → S3, /api/* → Lambda)
+- Placeholder application compilation and deployment (React SPA and Node.js API)
+- Resource validation and end-to-end testing
+- JSON configuration enhancement for subsequent stages
 
 ### Stage 3: Application Deployment (03-app-deploy)
 **Formal Name**: 03-app-deploy
