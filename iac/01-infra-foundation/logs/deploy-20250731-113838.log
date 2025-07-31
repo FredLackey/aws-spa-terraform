@@ -1,0 +1,99 @@
+[0;34m[INFO][0m 2025-07-31 11:38:38 - Starting 01-infra-foundation stage deployment
+[0;34m[INFO][0m 2025-07-31 11:38:38 - Log file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/01-infra-foundation/logs/deploy-20250731-113838.log
+
+[0;34m===============================================================================[0m
+[0;34mStep 1: Input Preparation[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:38:38 - Auto-discovering input file from previous stage
+[0;34m[INFO][0m 2025-07-31 11:38:38 - Loading configuration from: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/01-infra-foundation/input/thuapp-config-sbx.json
+[0;32m[SUCCESS][0m 2025-07-31 11:38:38 - Configuration loaded successfully
+[0;34m[INFO][0m 2025-07-31 11:38:38 - Project: thuapp | Environment: sbx | Region: us-east-1
+[0;34m[INFO][0m 2025-07-31 11:38:38 - Infrastructure Profile: bh-infra | Hosting Profile: bh-fred-sandbox
+[0;32m[SUCCESS][0m 2025-07-31 11:38:38 - Input configuration prepared successfully
+
+[0;34m===============================================================================[0m
+[0;34mStep 2: Authentication Validation[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:38:38 - Validating AWS SSO authentication for both accounts
+[0;34m[INFO][0m 2025-07-31 11:38:38 - Checking infrastructure account authentication (bh-infra)
+[0;32m[SUCCESS][0m 2025-07-31 11:38:39 - Infrastructure account authentication valid
+[0;34m[INFO][0m 2025-07-31 11:38:39 - Identity: arn:aws:sts::953082249352:assumed-role/AWSReservedSSO_Global-AdminAccess_3dab50d92a7c9923/flackey
+[0;34m[INFO][0m 2025-07-31 11:38:39 - Checking hosting account authentication (bh-fred-sandbox)
+[0;32m[SUCCESS][0m 2025-07-31 11:38:39 - Hosting account authentication valid
+[0;34m[INFO][0m 2025-07-31 11:38:39 - Identity: arn:aws:sts::415730361381:assumed-role/AWSReservedSSO_Global-AdminAccess_4b1736fc941ac0d3/flackey
+[0;32m[SUCCESS][0m 2025-07-31 11:38:39 - AWS SSO authentication validation completed successfully
+
+[0;34m===============================================================================[0m
+[0;34mStep 3: State Evaluation[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:38:39 - Evaluating current state of AWS resources
+[0;32m[SUCCESS][0m 2025-07-31 11:38:39 - All required tools are available
+[0;34m[INFO][0m 2025-07-31 11:38:39 - Validating VPC accessibility in hosting account
+[0;34m[INFO][0m 2025-07-31 11:38:39 - Validating VPC: vpc-0525f4b966f4e9a78
+[0;32m[SUCCESS][0m 2025-07-31 11:38:40 - VPC found and accessible: vpc-0525f4b966f4e9a78 (State: available)
+[0;34m[INFO][0m 2025-07-31 11:38:40 - Validating hosted zone accessibility from infrastructure account
+[0;34m[INFO][0m 2025-07-31 11:38:40 - Validating hosted zone for: briskhaven.com
+[0;32m[SUCCESS][0m 2025-07-31 11:38:40 - Hosted zone accessible: briskhaven.com (ID: Z01149023QVGP1C27GLC5)
+[0;32m[SUCCESS][0m 2025-07-31 11:38:40 - Current state evaluation completed
+
+[0;34m===============================================================================[0m
+[0;34mStep 4: Infrastructure Operations[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:38:40 - Executing infrastructure operations
+[0;34m[INFO][0m 2025-07-31 11:38:40 - Step 1: Managing cross-account IAM roles
+[0;34m[INFO][0m 2025-07-31 11:38:40 - Managing cross-account IAM roles
+[0;34m[INFO][0m 2025-07-31 11:38:41 - IAM role does not exist, creating
+[0;34m[INFO][0m 2025-07-31 11:38:41 - Creating IAM role: thuapp-sbx-cross-account-role (profile: bh-fred-sandbox)
+[0;32m[SUCCESS][0m 2025-07-31 11:38:41 - IAM role created successfully: thuapp-sbx-cross-account-role
+[0;34m[INFO][0m 2025-07-31 11:38:41 - Tagging IAM role: thuapp-sbx-cross-account-role
+[0;32m[SUCCESS][0m 2025-07-31 11:38:42 - IAM role tagged successfully: thuapp-sbx-cross-account-role
+[0;34m[INFO][0m 2025-07-31 11:38:42 - Attaching permissions policy to IAM role: thuapp-sbx-cross-account-role
+[0;32m[SUCCESS][0m 2025-07-31 11:38:42 - Permissions policy attached successfully to: thuapp-sbx-cross-account-role
+[0;34m[INFO][0m 2025-07-31 11:38:43 - Cross-account role ARN: arn:aws:iam::415730361381:role/thuapp-sbx-cross-account-role
+[0;34m[INFO][0m 2025-07-31 11:38:43 - Validating IAM role tags: thuapp-sbx-cross-account-role
+[0;32m[SUCCESS][0m 2025-07-31 11:38:43 - IAM role tags validation passed
+[0;34m[INFO][0m 2025-07-31 11:38:43 - Testing cross-account role assumption: arn:aws:iam::415730361381:role/thuapp-sbx-cross-account-role
+[0;32m[SUCCESS][0m 2025-07-31 11:38:44 - Cross-account role assumption test successful
+[0;32m[SUCCESS][0m 2025-07-31 11:38:44 - Cross-account IAM role management completed successfully
+[0;34m[INFO][0m 2025-07-31 11:38:44 - Step 2: Managing SSL certificates
+[0;34m[INFO][0m 2025-07-31 11:38:44 - Managing SSL certificates
+[0;34m[INFO][0m 2025-07-31 11:38:44 - Managing SSL certificate for domain: thuapp.sbx.briskhaven.com
+[0;34m[INFO][0m 2025-07-31 11:38:44 - Found existing certificate, validating status
+[0;34m[INFO][0m 2025-07-31 11:38:44 - Getting certificate status: arn:aws:acm:us-east-1:415730361381:certificate/e40a8527-890a-450c-a6d2-06918faa8dd9
+[0;32m[SUCCESS][0m 2025-07-31 11:38:45 - Existing certificate is already validated and issued
+[0;32m[SUCCESS][0m 2025-07-31 11:38:45 - Using existing validated certificate
+[0;34m[INFO][0m 2025-07-31 11:38:45 - Tagging certificate: arn:aws:acm:us-east-1:415730361381:certificate/e40a8527-890a-450c-a6d2-06918faa8dd9
+[0;32m[SUCCESS][0m 2025-07-31 11:38:45 - Certificate tagged successfully
+[0;32m[SUCCESS][0m 2025-07-31 11:38:45 - SSL certificate management completed successfully
+[0;34m[INFO][0m 2025-07-31 11:38:45 - Certificate ARN: arn:aws:acm:us-east-1:415730361381:certificate/e40a8527-890a-450c-a6d2-06918faa8dd9
+[0;34m[INFO][0m 2025-07-31 11:38:45 - Step 3: Running comprehensive validation
+[0;34m[INFO][0m 2025-07-31 11:38:45 - Generating comprehensive validation report
+
+[0;34m===============================================================================[0m
+[0;34mValidation Report Summary[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:38:47 - DEBUG: CROSS_ACCOUNT_ROLE_ARN from global: 'arn:aws:iam::415730361381:role/thuapp-sbx-cross-account-role'
+[0;34m[INFO][0m 2025-07-31 11:38:47 - DEBUG: Testing cross-account access with role: arn:aws:iam::415730361381:role/thuapp-sbx-cross-account-role
+
+✅ AWS SSO Authentication: PASSED
+✅ VPC Accessibility: PASSED
+✅ Hosted Zone Accessibility: PASSED
+✅ Cross-Account Access: PASSED
+✅ Certificate Accessibility: PASSED
+
+[0;32m[SUCCESS][0m 2025-07-31 11:38:49 - Overall validation status: PASSED
+[0;32m[SUCCESS][0m 2025-07-31 11:38:49 - Infrastructure operations completed successfully
+
+[0;34m===============================================================================[0m
+[0;34mStep 5: Output Generation[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:38:49 - Generating enhanced output configuration
+[0;32m[SUCCESS][0m 2025-07-31 11:38:49 - Enhanced configuration written to: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/01-infra-foundation/output/thuapp-config-sbx.json
+[0;32m[SUCCESS][0m 2025-07-31 11:38:49 - 01-infra-foundation stage deployment completed successfully
+[0;34m[INFO][0m 2025-07-31 11:38:49 - Enhanced configuration written to: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/01-infra-foundation/output

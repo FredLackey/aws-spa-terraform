@@ -1,0 +1,247 @@
+[2025-07-31 07:48:15] [INFO] Starting 00-discovery discovery for environment: 
+[2025-07-31 07:48:15] [INFO] Project: , Region: 
+[2025-07-31 07:48:15] [INFO] NOTE: This stage only validates and collects configuration - no AWS resources will be created
+[2025-07-31 07:48:15] [INFO] Checking if stage 00-discovery is already configured for environment SBX
+[2025-07-31 07:48:43] [INFO] Starting 00-discovery discovery for environment: 
+[2025-07-31 07:48:43] [INFO] Project: , Region: 
+[2025-07-31 07:48:43] [INFO] NOTE: This stage only validates and collects configuration - no AWS resources will be created
+[2025-07-31 07:48:43] [INFO] Validating AWS profiles and SSO sessions
+[2025-07-31 07:48:43] [INFO] Validating AWS profile: bh-infra (infrastructure account)
+[2025-07-31 07:48:43] [WARN] AWS profile 'bh-infra' session invalid or expired. Attempting SSO login...
+[2025-07-31 07:49:21] [INFO] Successfully validated infrastructure account: 953082249352
+[2025-07-31 07:49:21] [INFO] Validating AWS profile: bh-fred-sandbox (hosting account)
+[2025-07-31 07:49:23] [INFO] Successfully validated hosting account: 415730361381
+[2025-07-31 07:49:58] [INFO] Starting 00-discovery discovery for environment: 
+[2025-07-31 07:49:58] [INFO] Project: , Region: 
+[2025-07-31 07:49:58] [INFO] NOTE: This stage only validates and collects configuration - no AWS resources will be created
+[2025-07-31 07:49:58] [INFO] Validating AWS profiles and SSO sessions
+[2025-07-31 07:49:58] [INFO] Validating AWS profile: bh-infra (infrastructure account)
+[2025-07-31 07:49:59] [INFO] Successfully validated infrastructure account: 953082249352
+[2025-07-31 07:49:59] [INFO] Validating AWS profile: bh-fred-sandbox (hosting account)
+[2025-07-31 07:50:00] [INFO] Successfully validated hosting account: 415730361381
+[2025-07-31 07:50:00] [DEBUG] Generated future Terraform bucket: terraform-state-[0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352-sbx
+[2025-07-31 07:50:00] [DEBUG] Generated future Terraform table: terraform-locks-[0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352-sbx
+[2025-07-31 07:50:00] [DEBUG] Generated output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:50:00] [INFO] Checking if stage 00-discovery is already configured for environment SBX
+[2025-07-31 07:50:00] [INFO] Stage not yet configured. Proceeding with initial setup
+[2025-07-31 07:50:00] [INFO] Validating required Route 53 hosted zone
+[2025-07-31 07:50:00] [INFO] Validating required Route 53 hosted zone for domain: sbx.briskhaven.com
+[2025-07-31 07:50:00] [ERROR] ✗ REQUIRED Route 53 hosted zone NOT found for sbx.briskhaven.com in infrastructure account
+[2025-07-31 07:50:00] [ERROR] The hosted zone for sbx.briskhaven.com must exist before deployment can proceed
+[2025-07-31 07:50:00] [ERROR] Subsequent stages will need to create DNS records and cannot continue without this zone
+[2025-07-31 07:50:00] [ERROR] 
+[2025-07-31 07:50:00] [ERROR] To resolve this issue:
+[2025-07-31 07:50:00] [ERROR] 1. Create a hosted zone for sbx.briskhaven.com in the infrastructure account
+[2025-07-31 07:50:00] [ERROR] 2. Ensure proper DNS delegation is configured
+[2025-07-31 07:50:00] [ERROR] 3. Re-run this discovery stage
+[2025-07-31 07:50:00] [ERROR] Discovery failed: Required Route 53 hosted zone validation failed
+[2025-07-31 07:50:00] [ERROR] Deployment cannot proceed without the hosted zone
+[2025-07-31 07:52:58] [INFO] Starting 00-discovery discovery for environment: 
+[2025-07-31 07:52:58] [INFO] Project: , Region: 
+[2025-07-31 07:52:58] [INFO] NOTE: This stage only validates and collects configuration - no AWS resources will be created
+[2025-07-31 07:52:58] [INFO] Validating AWS profiles and SSO sessions
+[2025-07-31 07:52:58] [INFO] Validating AWS profile: bh-infra (infrastructure account)
+[2025-07-31 07:52:59] [INFO] Successfully validated infrastructure account: 953082249352
+[2025-07-31 07:52:59] [INFO] Validating AWS profile: bh-fred-sandbox (hosting account)
+[2025-07-31 07:52:59] [INFO] Successfully validated hosting account: 415730361381
+[2025-07-31 07:52:59] [DEBUG] Generated future Terraform bucket: terraform-state-[0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352-sbx
+[2025-07-31 07:52:59] [DEBUG] Generated future Terraform table: terraform-locks-[0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352-sbx
+[2025-07-31 07:52:59] [DEBUG] Generated output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:52:59] [INFO] Checking if stage 00-discovery is already configured for environment SBX
+[2025-07-31 07:52:59] [INFO] Stage not yet configured. Proceeding with initial setup
+[2025-07-31 07:52:59] [INFO] Validating required Route 53 hosted zone
+[2025-07-31 07:52:59] [INFO] Validating required Route 53 hosted zone for domain: thuapp.sbx.briskhaven.com
+[2025-07-31 07:52:59] [INFO] Checking for hosted zone: thuapp.sbx.briskhaven.com
+[2025-07-31 07:53:00] [INFO] Checking for hosted zone: sbx.briskhaven.com
+[2025-07-31 07:53:00] [INFO] Checking for hosted zone: briskhaven.com
+[2025-07-31 07:53:01] [INFO] ✓ Found required Route 53 hosted zone for briskhaven.com: /hostedzone/Z01149023QVGP1C27GLC5
+[2025-07-31 07:53:01] [INFO]   Domain thuapp.sbx.briskhaven.com will use parent hosted zone: briskhaven.com
+[2025-07-31 07:53:01] [INFO] Generating configuration output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:53:01] [INFO] Configuration output generated successfully
+[2025-07-31 07:53:01] [INFO] 00-discovery discovery completed successfully
+[2025-07-31 07:53:01] [INFO] Configuration file generated: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:53:01] [INFO] 
+[2025-07-31 07:53:01] [INFO] Discovery Summary:
+[2025-07-31 07:53:01] [INFO]   - Infrastructure Account: [0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352 (profile: bh-infra)
+[2025-07-31 07:53:01] [INFO]   - Hosting Account: [0;32m[INFO][0m Validating AWS profile: bh-fred-sandbox (hosting account)
+[0;32m[INFO][0m Successfully validated hosting account: 415730361381
+415730361381 (profile: bh-fred-sandbox)
+[2025-07-31 07:53:01] [INFO]   - Project: thuapp
+[2025-07-31 07:53:01] [INFO]   - Environment: SBX
+[2025-07-31 07:53:01] [INFO]   - Region: us-east-1
+[2025-07-31 07:53:01] [INFO]   - Application Domain: thuapp.sbx.briskhaven.com
+[2025-07-31 07:53:01] [INFO] 
+[2025-07-31 07:53:01] [INFO] Next steps:
+[2025-07-31 07:53:01] [INFO]   1. Review generated configuration file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:53:01] [INFO]   2. Proceed to stage 01-infra-foundation
+[2025-07-31 07:53:31] [INFO] Starting 00-discovery discovery for environment: 
+[2025-07-31 07:53:31] [INFO] Project: , Region: 
+[2025-07-31 07:53:31] [INFO] NOTE: This stage only validates and collects configuration - no AWS resources will be created
+[2025-07-31 07:53:31] [INFO] Validating AWS profiles and SSO sessions
+[2025-07-31 07:53:31] [INFO] Validating AWS profile: bh-infra (infrastructure account)
+[2025-07-31 07:53:32] [INFO] Successfully validated infrastructure account: 953082249352
+[2025-07-31 07:53:32] [INFO] Validating AWS profile: bh-fred-sandbox (hosting account)
+[2025-07-31 07:53:33] [INFO] Successfully validated hosting account: 415730361381
+[2025-07-31 07:53:33] [DEBUG] Generated future Terraform bucket: terraform-state-[0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352-sbx
+[2025-07-31 07:53:33] [DEBUG] Generated future Terraform table: terraform-locks-[0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352-sbx
+[2025-07-31 07:53:33] [DEBUG] Generated output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:53:33] [INFO] Checking if stage 00-discovery is already configured for environment SBX
+[2025-07-31 07:53:33] [INFO] Stage not yet configured. Proceeding with initial setup
+[2025-07-31 07:53:33] [INFO] Validating required Route 53 hosted zone
+[2025-07-31 07:53:33] [INFO] Validating required Route 53 hosted zone for domain: thuapp.sbx.briskhaven.com
+[2025-07-31 07:53:33] [INFO] Checking for hosted zone: thuapp.sbx.briskhaven.com
+[2025-07-31 07:53:33] [INFO] Checking for hosted zone: sbx.briskhaven.com
+[2025-07-31 07:53:34] [INFO] Checking for hosted zone: briskhaven.com
+[2025-07-31 07:53:34] [INFO] ✓ Found required Route 53 hosted zone for briskhaven.com: /hostedzone/Z01149023QVGP1C27GLC5
+[2025-07-31 07:53:34] [INFO]   Domain thuapp.sbx.briskhaven.com will use parent hosted zone: briskhaven.com
+[2025-07-31 07:53:34] [INFO] Generating configuration output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:53:34] [INFO] Configuration output generated successfully
+[2025-07-31 07:53:34] [INFO] 00-discovery discovery completed successfully
+[2025-07-31 07:53:34] [INFO] Configuration file generated: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:53:34] [INFO] 
+[2025-07-31 07:53:34] [INFO] Discovery Summary:
+[2025-07-31 07:53:34] [INFO]   - Infrastructure Account: [0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352 (profile: bh-infra)
+[2025-07-31 07:53:34] [INFO]   - Hosting Account: [0;32m[INFO][0m Validating AWS profile: bh-fred-sandbox (hosting account)
+[0;32m[INFO][0m Successfully validated hosting account: 415730361381
+415730361381 (profile: bh-fred-sandbox)
+[2025-07-31 07:53:34] [INFO]   - Project: thuapp
+[2025-07-31 07:53:34] [INFO]   - Environment: SBX
+[2025-07-31 07:53:34] [INFO]   - Region: us-east-1
+[2025-07-31 07:53:34] [INFO]   - Application Domain: thuapp.sbx.briskhaven.com
+[2025-07-31 07:53:34] [INFO] 
+[2025-07-31 07:53:34] [INFO] Next steps:
+[2025-07-31 07:53:34] [INFO]   1. Review generated configuration file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:53:34] [INFO]   2. Proceed to stage 01-infra-foundation
+[2025-07-31 07:54:02] [INFO] Starting 00-discovery discovery for environment: 
+[2025-07-31 07:54:02] [INFO] Project: , Region: 
+[2025-07-31 07:54:02] [INFO] NOTE: This stage only validates and collects configuration - no AWS resources will be created
+[2025-07-31 07:54:02] [INFO] Validating AWS profiles and SSO sessions
+[2025-07-31 07:54:02] [INFO] Validating AWS profile: bh-infra (infrastructure account)
+[2025-07-31 07:54:03] [INFO] Successfully validated infrastructure account: 953082249352
+[2025-07-31 07:54:03] [INFO] Validating AWS profile: bh-fred-sandbox (hosting account)
+[2025-07-31 07:54:04] [INFO] Successfully validated hosting account: 415730361381
+[2025-07-31 07:54:04] [DEBUG] Generated future Terraform bucket: terraform-state-[0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352-sbx
+[2025-07-31 07:54:04] [DEBUG] Generated future Terraform table: terraform-locks-[0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352-sbx
+[2025-07-31 07:54:04] [DEBUG] Generated output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:54:04] [INFO] Checking if stage 00-discovery is already configured for environment SBX
+[2025-07-31 07:54:04] [INFO] Stage not yet configured. Proceeding with initial setup
+[2025-07-31 07:54:04] [INFO] Validating required Route 53 hosted zone
+[2025-07-31 07:54:04] [INFO] Validating required Route 53 hosted zone for domain: thuapp.sbx.briskhaven.com
+[2025-07-31 07:54:04] [INFO] Checking for hosted zone: thuapp.sbx.briskhaven.com
+[2025-07-31 07:54:04] [INFO] Checking for hosted zone: sbx.briskhaven.com
+[2025-07-31 07:54:05] [INFO] Checking for hosted zone: briskhaven.com
+[2025-07-31 07:54:05] [INFO] ✓ Found required Route 53 hosted zone for briskhaven.com: /hostedzone/Z01149023QVGP1C27GLC5
+[2025-07-31 07:54:05] [INFO]   Domain thuapp.sbx.briskhaven.com will use parent hosted zone: briskhaven.com
+[2025-07-31 07:54:05] [INFO] Generating configuration output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:54:05] [INFO] Configuration output generated successfully
+[2025-07-31 07:54:05] [INFO] 00-discovery discovery completed successfully
+[2025-07-31 07:54:05] [INFO] Configuration file generated: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:54:05] [INFO] 
+[2025-07-31 07:54:05] [INFO] Discovery Summary:
+[2025-07-31 07:54:05] [INFO]   - Infrastructure Account: [0;32m[INFO][0m Validating AWS profile: bh-infra (infrastructure account)
+[0;32m[INFO][0m Successfully validated infrastructure account: 953082249352
+953082249352 (profile: bh-infra)
+[2025-07-31 07:54:05] [INFO]   - Hosting Account: [0;32m[INFO][0m Validating AWS profile: bh-fred-sandbox (hosting account)
+[0;32m[INFO][0m Successfully validated hosting account: 415730361381
+415730361381 (profile: bh-fred-sandbox)
+[2025-07-31 07:54:05] [INFO]   - Project: thuapp
+[2025-07-31 07:54:05] [INFO]   - Environment: SBX
+[2025-07-31 07:54:05] [INFO]   - Region: us-east-1
+[2025-07-31 07:54:05] [INFO]   - Application Domain: thuapp.sbx.briskhaven.com
+[2025-07-31 07:54:05] [INFO] 
+[2025-07-31 07:54:05] [INFO] Next steps:
+[2025-07-31 07:54:05] [INFO]   1. Review generated configuration file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:54:05] [INFO]   2. Proceed to stage 01-infra-foundation
+[2025-07-31 07:58:37] [INFO] Starting 00-discovery discovery for environment: 
+[2025-07-31 07:58:37] [INFO] Project: , Region: 
+[2025-07-31 07:58:37] [INFO] NOTE: This stage only validates and collects configuration - no AWS resources will be created
+[2025-07-31 07:58:37] [INFO] Validating AWS profiles and SSO sessions
+[2025-07-31 07:58:37] [INFO] Validating AWS profile: bh-infra (infrastructure account)
+[2025-07-31 07:58:38] [INFO] Successfully validated infrastructure account: 953082249352
+[2025-07-31 07:58:38] [INFO] Validating AWS profile: bh-fred-sandbox (hosting account)
+[2025-07-31 07:58:38] [INFO] Successfully validated hosting account: 415730361381
+[2025-07-31 07:58:38] [DEBUG] Generated future Terraform bucket: terraform-state-953082249352-sbx
+[2025-07-31 07:58:38] [DEBUG] Generated future Terraform table: terraform-locks-953082249352-sbx
+[2025-07-31 07:58:38] [DEBUG] Generated output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:58:38] [INFO] Checking if stage 00-discovery is already configured for environment SBX
+[2025-07-31 07:58:38] [INFO] Stage not yet configured. Proceeding with initial setup
+[2025-07-31 07:58:38] [INFO] Validating required Route 53 hosted zone
+[2025-07-31 07:58:38] [INFO] Validating required Route 53 hosted zone for domain: thuapp.sbx.briskhaven.com
+[2025-07-31 07:58:38] [INFO] Checking for hosted zone: thuapp.sbx.briskhaven.com
+[2025-07-31 07:58:39] [INFO] Checking for hosted zone: sbx.briskhaven.com
+[2025-07-31 07:58:39] [INFO] Checking for hosted zone: briskhaven.com
+[2025-07-31 07:58:40] [INFO] ✓ Found required Route 53 hosted zone for briskhaven.com: /hostedzone/Z01149023QVGP1C27GLC5
+[2025-07-31 07:58:40] [INFO]   Domain thuapp.sbx.briskhaven.com will use parent hosted zone: briskhaven.com
+[2025-07-31 07:58:40] [INFO] Generating configuration output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:58:40] [INFO] Configuration output generated successfully
+[2025-07-31 07:58:40] [INFO] 00-discovery discovery completed successfully
+[2025-07-31 07:58:40] [INFO] Configuration file generated: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:58:40] [INFO] 
+[2025-07-31 07:58:40] [INFO] Discovery Summary:
+[2025-07-31 07:58:40] [INFO]   - Infrastructure Account: 953082249352 (profile: bh-infra)
+[2025-07-31 07:58:40] [INFO]   - Hosting Account: 415730361381 (profile: bh-fred-sandbox)
+[2025-07-31 07:58:40] [INFO]   - Project: thuapp
+[2025-07-31 07:58:40] [INFO]   - Environment: SBX
+[2025-07-31 07:58:40] [INFO]   - Region: us-east-1
+[2025-07-31 07:58:40] [INFO]   - Application Domain: thuapp.sbx.briskhaven.com
+[2025-07-31 07:58:40] [INFO] 
+[2025-07-31 07:58:40] [INFO] Next steps:
+[2025-07-31 07:58:40] [INFO]   1. Review generated configuration file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 07:58:40] [INFO]   2. Proceed to stage 01-infra-foundation
+[2025-07-31 08:21:15] [INFO] Starting 00-discovery discovery for environment: 
+[2025-07-31 08:21:15] [INFO] Project: , Region: 
+[2025-07-31 08:21:15] [INFO] NOTE: This stage only validates and collects configuration - no AWS resources will be created
+[2025-07-31 08:21:15] [INFO] Validating AWS profiles and SSO sessions
+[2025-07-31 08:21:15] [INFO] Validating AWS profile: bh-infra (infrastructure account)
+[2025-07-31 08:21:16] [INFO] Successfully validated infrastructure account: 953082249352
+[2025-07-31 08:21:16] [INFO] Validating AWS profile: bh-fred-sandbox (hosting account)
+[2025-07-31 08:21:17] [INFO] Successfully validated hosting account: 415730361381
+[2025-07-31 08:21:17] [DEBUG] Generated future Terraform bucket: terraform-state-953082249352-sbx
+[2025-07-31 08:21:17] [DEBUG] Generated future Terraform table: terraform-locks-953082249352-sbx
+[2025-07-31 08:21:17] [DEBUG] Generated output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 08:21:17] [INFO] Checking if stage 00-discovery is already configured for environment SBX
+[2025-07-31 08:21:17] [INFO] Stage not yet configured. Proceeding with initial setup
+[2025-07-31 08:21:17] [INFO] Validating required Route 53 hosted zone
+[2025-07-31 08:21:17] [INFO] Validating required Route 53 hosted zone for domain: thuapp.sbx.briskhaven.com
+[2025-07-31 08:21:17] [INFO] Checking for hosted zone: thuapp.sbx.briskhaven.com
+[2025-07-31 08:21:17] [INFO] Checking for hosted zone: sbx.briskhaven.com
+[2025-07-31 08:21:18] [INFO] Checking for hosted zone: briskhaven.com
+[2025-07-31 08:21:18] [INFO] ✓ Found required Route 53 hosted zone for briskhaven.com: /hostedzone/Z01149023QVGP1C27GLC5
+[2025-07-31 08:21:18] [INFO]   Domain thuapp.sbx.briskhaven.com will use parent hosted zone: briskhaven.com
+[2025-07-31 08:21:18] [INFO] Generating configuration output file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 08:21:18] [INFO] Configuration output generated successfully
+[2025-07-31 08:21:18] [INFO] 00-discovery discovery completed successfully
+[2025-07-31 08:21:18] [INFO] Configuration file generated: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 08:21:18] [INFO] 
+[2025-07-31 08:21:18] [INFO] Discovery Summary:
+[2025-07-31 08:21:18] [INFO]   - Infrastructure Account: 953082249352 (profile: bh-infra)
+[2025-07-31 08:21:18] [INFO]   - Hosting Account: 415730361381 (profile: bh-fred-sandbox)
+[2025-07-31 08:21:18] [INFO]   - Project: thuapp
+[2025-07-31 08:21:18] [INFO]   - Environment: SBX
+[2025-07-31 08:21:18] [INFO]   - Region: us-east-1
+[2025-07-31 08:21:18] [INFO]   - Application Domain: thuapp.sbx.briskhaven.com
+[2025-07-31 08:21:18] [INFO]   - VPC ID: vpc-0525f4b966f4e9a78
+[2025-07-31 08:21:18] [INFO] 
+[2025-07-31 08:21:18] [INFO] Next steps:
+[2025-07-31 08:21:18] [INFO]   1. Review generated configuration file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/00-discovery/output/thuapp-config-sbx.json
+[2025-07-31 08:21:18] [INFO]   2. Proceed to stage 01-infra-foundation

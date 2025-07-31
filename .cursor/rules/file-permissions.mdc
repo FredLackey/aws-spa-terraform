@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Ignore the /_archive folder structure and files completely.  Do not read or edit anything in this path.
+- Ignore the /assets/complexapi folder structure and files completely.  Do not read or edit anything in this path.
+- Do not edit the apps/%PROJECT%/src/data/models folder structure.  
+- Never update a *.dbs, *.md, *.prisma, *.env, *.yaml, OpenAPI files, or JSON Schema files unless explicity told to do so.  Agent Mode and Yolo settings do not matter!  Only make suggestions.
+- Once you have suggested the changes you can be authorized to make the changes to the files with a reply such as "please make the changes"

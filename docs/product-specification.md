@@ -14,6 +14,62 @@ The primary purpose of this monorepo is to provide a production-ready template a
 4. **Infrastructure as Code best practices** - Terraform modules, state management, and automated deployment scripts
 5. **Multi-stage deployment workflow** - Development, staging, and production environments
 
+## Inter-Stage Data Flow Architecture
+
+The monorepo implements a **progressive configuration enhancement pattern** where each stage builds upon the validated data from previous stages:
+
+### Data Flow Pattern
+1. **Stage N Completion**: Creates `output/{project-prefix}-config-{environment}.json` with validated configuration
+2. **Stage N+1 Initialization**: 
+   - Automatically copies `../stage-N/output/{project-prefix}-config-{environment}.json` to `input/{project-prefix}-config-{environment}.json`
+   - Loads existing configuration as baseline
+3. **Stage N+1 Enhancement**:
+   - Accepts additional parameters via command line arguments
+   - Validates new parameters against existing configuration
+   - Enhances configuration with stage-specific data
+4. **Stage N+1 Completion**: Creates enhanced `output/{project-prefix}-config-{environment}.json` for next stage
+
+### Configuration Evolution Example
+```bash
+# Stage 00-discovery - Collect ALL required baseline parameters
+./deploy.sh -e DEV -p myapp -i infra-profile -h hosting-profile -d app.dev.example.com --vpc-id vpc-12345
+# Creates: output/myapp-config-dev.json (complete project config with VPC)
+
+# Stage 01-infra-foundation - Discover/create infrastructure resources
+./deploy.sh
+# 1. Copies: ../00-discovery/output/myapp-config-dev.json → input/myapp-config-dev.json
+# 2. Extracts environment (DEV) and region from input configuration
+# 3. Uses VPC ID from discovery config
+# 4. Discovers existing SSL certificate OR creates new certificate for domain
+# 5. Creates: output/myapp-config-dev.json (enhanced with certificate ARN, hosted zone details)
+
+# Stage 02-infra-setup - Configure application infrastructure  
+./deploy.sh --cdn-price-class PriceClass_100 --lambda-memory 512
+# 1. Copies: ../01-infra-foundation/output/myapp-config-dev.json → input/myapp-config-dev.json
+# 2. Extracts environment (DEV) and region from input configuration
+# 3. Uses certificate ARN and VPC from previous stages
+# 4. Applies CDN and Lambda configuration parameters
+# 5. Creates: output/myapp-config-dev.json (enhanced with application settings)
+```
+
+### Flexible Input Sourcing
+Each stage supports an optional `--input-file` argument for custom input sources:
+```bash
+# Use specific output file from previous stage instead of automatic discovery
+./deploy.sh --input-file /path/to/myapp-config-dev.json --additional-stage-params
+
+# Use archived output file from previous stage
+./deploy.sh --input-file s3://archive/myapp-config-dev-backup.json
+```
+
+### Benefits
+- **Progressive Validation**: Each stage validates compatibility with previous stage data
+- **Configuration Inheritance**: Environment, region, and baseline parameters never need re-specification after stage 00
+- **Configuration Consistency**: Same project prefix + environment maintains data relationships
+- **Pipeline Flexibility**: Stages can be re-run with different stage-specific parameters while preserving base configuration
+- **Data Lineage**: Clear traceability of configuration evolution through deployment pipeline
+- **Recovery Support**: Previous stage outputs enable pipeline restart from any point
+
 ## Design Principles
 
 The following principles guide all implementation decisions throughout the monorepo:
@@ -28,21 +84,26 @@ The following principles guide all implementation decisions throughout the monor
 ### AWS Resource Tagging
 - **Mandatory Tagging**: All AWS resources created must include standardized tags
   - `Project`: Project prefix value for resource identification
-  - `Environment`: Environment specification (dev, staging, prod)
+  - `Environment`: Environment code (SBX, DEV, TEST, UAT, STAGE, MO, PROD) - uppercase for internal values
   - Additional tags may be added as needed for specific resources
 - **Tag Consistency**: Tags applied uniformly across all stages and environments
 - **Cost Tracking**: Enables accurate cost allocation and resource management
 
 ### Infrastructure as Code Standards  
-- **Terraform-first**: All infrastructure provisioning uses Terraform
-- **State Isolation**: Each stage maintains independent Terraform state
+- **Stage-Appropriate Tooling**: 
+  - Stages 00-discovery and 01-infra-foundation use pure AWS CLI and bash scripting
+  - Stages 02+ use Terraform for infrastructure provisioning
+- **State Management**: 
+  - AWS CLI stages (00, 01) use JSON configuration files for state tracking
+  - Terraform stages (02+) maintain independent Terraform state files
+- **Folder Structure**: The `terraform/` folder is excluded from stages that use pure AWS CLI
 - **Idempotent Operations**: All deployment operations can be safely re-executed
 
 ### State-Aware Execution
 - **Existence Validation**: Always check if resources exist before attempting creation
 - **Update Detection**: Evaluate whether existing resources require modification
-- **Terraform Integration**: Leverage Terraform's built-in state management for infrastructure resources
-- **Manual Prerequisites**: Use AWS CLI in bash scripts to verify/create prerequisites that Terraform requires
+- **Stage 01 Discovery Pattern**: Use AWS CLI with discovery-first approach for foundational resources
+- **Terraform Integration**: Leverage Terraform's built-in state management for application infrastructure (Stage 02+)
 - **No Redundant Operations**: Skip unnecessary operations when desired state already exists
 - **Safe Re-execution**: All scripts can be run multiple times without adverse effects
 
@@ -140,7 +201,7 @@ aws-spa-terraform/
 │   └── real-react-app/      # Production React.js frontend for Development team
 ├── iac/                      # Infrastructure as Code
 │   ├── [stage]/              # Deployment stage folder (00-discovery, 01-infra-foundation, etc.)
-│   │   ├── terraform/        # Terraform configurations
+│   │   ├── terraform/        # Terraform configurations (stages 02+ only - excluded from stages using pure AWS CLI)
 │   │   ├── scripts/          # Deployment scripts
 │   │   ├── config/           # Stage-specific configuration files
 │   │   ├── input/            # Input data from previous stage
@@ -201,14 +262,16 @@ Each stage's `destroy.sh` script provides cleanup functionality:
    - Warn user of potential impacts before proceeding with destruction
 
 4. **Infrastructure Destruction**
-   - Execute Terraform destroy operations in reverse dependency order
-   - Clean up any additional resources not managed by Terraform
+   - For Terraform stages: Execute Terraform destroy operations in reverse dependency order
+   - For AWS CLI stages: Execute AWS CLI delete operations for created resources
+   - Clean up any additional resources not managed by the primary tooling
    - Validate complete resource removal
 
-5. **Terraform State Management**
-   - By default, preserve Terraform state files in remote backend for future deployments
-   - Remove Terraform state files only if `--remove-tf` flag is explicitly passed
-   - If removing state files, clean up remote state backend resources
+5. **State Management**
+   - **Terraform stages**: By default, preserve Terraform state files in remote backend for future deployments
+   - **Terraform stages**: Remove Terraform state files only if `--remove-tf` flag is explicitly passed
+   - **AWS CLI stages**: No state files to manage - resource tracking via configuration files
+   - If removing Terraform state files, clean up remote state backend resources
    - Log state management decisions for audit purposes
 
 6. **Cleanup Operations**
@@ -231,25 +294,43 @@ All bash scripts in the IAC stages follow standardized argument handling:
 - **Immediate exit**: Scripts exit with non-zero status on argument errors
 
 ### Example Usage Patterns
+
+**Stage 00-discovery (baseline configuration):**
 ```bash
 # Deploy script with double-dash arguments
-./deploy.sh --environment DEV --region us-east-1
+./deploy.sh --environment DEV --region us-east-1 --project-prefix myapp --domain app.dev.example.com --vpc-id vpc-12345
 
-# Deploy script with single-dash arguments
-./deploy.sh -e SBX -r us-east-1
-
-# Destroy script with optional state removal (double-dash)
-./destroy.sh --environment PROD --remove-tf
-
-# Destroy script with single-dash arguments
-./destroy.sh -e UAT -t
+# Deploy script with single-dash arguments  
+./deploy.sh -e SBX -r us-east-1 -p myapp -d app.sbx.example.com -v vpc-67890
 ```
 
-### Standard Arguments
-- `--environment` / `-e`: Target environment (see Environment Standards below)
+**Subsequent stages (01+) - inherit baseline configuration:**
+```bash
+# Deploy script using automatic input discovery
+./deploy.sh
+
+# Deploy script with custom input file
+./deploy.sh --input-file /path/to/previous-stage-output.json
+
+# Destroy script with Terraform state removal (Terraform stages only)
+./destroy.sh --remove-tf
+
+# Destroy script for AWS CLI stages (no Terraform state)
+./destroy.sh
+```
+
+### Standard Arguments for Stage 00-discovery
+The following arguments are required only for the initial discovery stage (00-discovery) to establish baseline configuration:
+- `--environment` / `-e`: Target environment code (SBX, DEV, TEST, UAT, STAGE, MO, PROD) - accepts uppercase or lowercase, lowercase used for file names
 - `--region` / `-r`: AWS region for deployment
-- `--remove-tf` / `-t`: (destroy only) Remove Terraform state files
 - `--help` / `-h`: Display usage information
+
+### Standard Arguments for Subsequent Stages (01+)
+Later stages inherit baseline configuration and only accept stage-specific arguments:
+- `--input-file`: Optional path to previous stage output file (if not using automatic discovery)
+- `--remove-tf` / `-t`: (destroy only) Remove Terraform state files (Terraform stages only)
+- `--help` / `-h`: Display usage information
+- Stage-specific arguments as needed for new functionality
 
 ### Environment Standards
 
@@ -287,7 +368,7 @@ All Terraform configurations use a standardized remote backend architecture:
 ### Backend Architecture
 - **S3 + DynamoDB**: All Terraform state uses S3 for storage with DynamoDB for state locking
 - **Stage-specific backends**: Each deployment stage maintains its own dedicated Terraform backend
-- **Environment isolation**: Separate backends for dev, staging, and production environments
+- **Environment isolation**: Separate backends for each environment (SBX, DEV, TEST, UAT, STAGE, MO, PROD)
 
 ### Backend Configuration
 - **S3 Bucket**: Stores Terraform state files with versioning enabled
@@ -304,14 +385,14 @@ DynamoDB Table: terraform-locks-{account-id}-{stage}-{environment}
 ### State File Organization
 ```
 s3://bucket-name/
-├── 00-discovery/
-│   └── global/terraform.tfstate
-├── 01-infra-foundation/
-│   ├── dev/terraform.tfstate
-│   ├── staging/terraform.tfstate
-│   └── prod/terraform.tfstate
 ├── 02-infra-setup/
+│   ├── sbx/terraform.tfstate
 │   ├── dev/terraform.tfstate
+│   ├── test/terraform.tfstate
+│   ├── uat/terraform.tfstate
+│   ├── stage/terraform.tfstate
+│   ├── mo/terraform.tfstate
+│   └── prod/terraform.tfstate
 │   └── ...
 ```
 
@@ -354,7 +435,7 @@ The deployment requires permissions for:
 - Project configuration initialization
   - Collect project prefix for resource naming conventions
   - Gather domain names for CloudFront applications (placeholder and real apps)
-  - Define environment specifications (dev, staging, prod)
+  - Define environment specifications (SBX, DEV, TEST, UAT, STAGE, MO, PROD)
   - Configure AWS account IDs for infrastructure and hosting accounts
   - Specify target VPC ID for single-VPC deployment
   - Define target AWS region for single-region deployment
@@ -365,22 +446,26 @@ The deployment requires permissions for:
 ### Stage 1: Infrastructure Foundation (01-infra-foundation)
 **Formal Name**: 01-infra-foundation
 **Owner**: AWS Cloud Owner
-- AWS account creation and organization setup
-- Trust relationship evaluation and configuration
-  - Check for existing cross-account trust policies
+**Implementation**: Pure AWS CLI and bash scripting (no Terraform)
+- Trust relationship discovery and configuration
+  - Discover existing cross-account trust policies via AWS CLI
   - Create missing trust relationships between infrastructure and hosting accounts
-  - Validate trust policy permissions and scope
-- Cross-account IAM role configuration
-- Route 53 hosted zone creation
-- Security baseline implementation
+  - Validate and update trust policy permissions and scope
+- SSL certificate discovery and management
+  - Search for existing certificates matching application domain
+  - Create new certificates with DNS validation if none exist
+  - Handle certificate validation workflow
+- Route 53 hosted zone validation and DNS record management for certificate validation
+- Cross-account IAM role discovery, creation, and validation
 
 ### Stage 2: Infrastructure Setup (02-infra-setup)
 **Formal Name**: 02-infra-setup
 **Owner**: DevOps Team
-- IAC deployment stages configuration
-- Infrastructure automation development
-- SSL certificate provisioning and management
+**Implementation**: Terraform-based infrastructure provisioning
+- Application infrastructure creation (CloudFront, Lambda, API Gateway)
+- Application DNS record creation (using certificate ARN from Stage 01)
 - Placeholder application creation (simple demo API/SPA for infrastructure testing)
+- Infrastructure automation development
 - CI/CD pipeline setup
 - Monitoring and logging configuration
 

@@ -1,0 +1,65 @@
+[0;34m[INFO][0m 2025-07-31 11:24:14 - Starting 01-infra-foundation stage destruction
+[0;34m[INFO][0m 2025-07-31 11:24:14 - Log file: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/01-infra-foundation/logs/destroy-20250731-112414.log
+
+[0;34m===============================================================================[0m
+[0;34mInput Preparation[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:24:14 - Preparing configuration for destruction
+[0;34m[INFO][0m 2025-07-31 11:24:14 - Auto-discovering configuration file for destruction
+[0;34m[INFO][0m 2025-07-31 11:24:14 - Loading configuration from: /Users/flackey/Source/fredlackey/public/aws-spa-terraform/iac/01-infra-foundation/output/thuapp-config-sbx.json
+[0;32m[SUCCESS][0m 2025-07-31 11:24:14 - Configuration loaded successfully
+[0;34m[INFO][0m 2025-07-31 11:24:14 - Project: thuapp | Environment: sbx | Region: us-east-1
+[0;34m[INFO][0m 2025-07-31 11:24:14 - Infrastructure Profile: bh-infra | Hosting Profile: bh-fred-sandbox
+[0;32m[SUCCESS][0m 2025-07-31 11:24:14 - Destruction configuration prepared
+
+[0;34m===============================================================================[0m
+[0;34mAuthentication Validation[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:24:14 - Validating AWS SSO authentication for both accounts
+[0;34m[INFO][0m 2025-07-31 11:24:14 - Checking infrastructure account authentication (bh-infra)
+[0;32m[SUCCESS][0m 2025-07-31 11:24:15 - Infrastructure account authentication valid
+[0;34m[INFO][0m 2025-07-31 11:24:15 - Identity: arn:aws:sts::953082249352:assumed-role/AWSReservedSSO_Global-AdminAccess_3dab50d92a7c9923/flackey
+[0;34m[INFO][0m 2025-07-31 11:24:15 - Checking hosting account authentication (bh-fred-sandbox)
+[0;32m[SUCCESS][0m 2025-07-31 11:24:15 - Hosting account authentication valid
+[0;34m[INFO][0m 2025-07-31 11:24:15 - Identity: arn:aws:sts::415730361381:assumed-role/AWSReservedSSO_Global-AdminAccess_4b1736fc941ac0d3/flackey
+[0;32m[SUCCESS][0m 2025-07-31 11:24:15 - AWS SSO authentication validation completed successfully
+
+[0;34m===============================================================================[0m
+[0;34mDependency Validation[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:24:15 - Checking for dependent stages that might be using current resources
+
+[0;34m===============================================================================[0m
+[0;34mState Evaluation[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:24:15 - Evaluating state for resource destruction
+[0;34m[INFO][0m 2025-07-31 11:24:16 - No IAM role found to clean up: thuapp-sbx-cross-account-role
+[1;33m[WARNING][0m 2025-07-31 11:24:16 - Configuration indicates IAM role should exist: arn:aws:iam::415730361381:role/thuapp-sbx-cross-account-role
+[1;33m[WARNING][0m 2025-07-31 11:24:16 - Role may have been deleted manually or creation may have failed
+[0;34m[INFO][0m 2025-07-31 11:24:16 - Found certificate for domain: thuapp.sbx.briskhaven.com
+[0;34m[INFO][0m 2025-07-31 11:24:16 - Certificate ARN: arn:aws:acm:us-east-1:415730361381:certificate/e40a8527-890a-450c-a6d2-06918faa8dd9
+[0;32m[SUCCESS][0m 2025-07-31 11:24:16 - Certificate matches configuration
+[1;33m[WARNING][0m 2025-07-31 11:24:16 - Certificates will NOT be automatically deleted for safety
+[0;32m[SUCCESS][0m 2025-07-31 11:24:16 - Destruction state evaluation completed
+
+[0;34m===============================================================================[0m
+[0;34mResource Destruction[0m
+[0;34m===============================================================================[0m
+
+[0;34m[INFO][0m 2025-07-31 11:24:16 - Executing resource destruction
+[0;34m[INFO][0m 2025-07-31 11:24:16 - Cleaning up IAM resources
+[0;34m[INFO][0m 2025-07-31 11:24:17 - IAM role does not exist, nothing to clean up
+[0;32m[SUCCESS][0m 2025-07-31 11:24:17 - IAM resource cleanup completed
+[0;34m[INFO][0m 2025-07-31 11:24:17 - Cleaning up certificate resources
+[1;33m[WARNING][0m 2025-07-31 11:24:17 - Found certificate for domain: thuapp.sbx.briskhaven.com
+[1;33m[WARNING][0m 2025-07-31 11:24:17 - Certificate ARN: arn:aws:acm:us-east-1:415730361381:certificate/e40a8527-890a-450c-a6d2-06918faa8dd9
+[1;33m[WARNING][0m 2025-07-31 11:24:17 - Note: Certificates are not automatically deleted for safety
+[1;33m[WARNING][0m 2025-07-31 11:24:17 - If you need to delete the certificate, do so manually from the AWS Console
+[1;33m[WARNING][0m 2025-07-31 11:24:17 - This preserves certificates that might be used by other resources
+[0;32m[SUCCESS][0m 2025-07-31 11:24:17 - Certificate resource cleanup completed
+[0;32m[SUCCESS][0m 2025-07-31 11:24:17 - Resource destruction completed successfully
+[0;32m[SUCCESS][0m 2025-07-31 11:24:17 - 01-infra-foundation stage destruction completed successfully

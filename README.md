@@ -2,13 +2,14 @@
 
 ## What This Is
 
-A **demonstration template** showing how to deploy a Single Page Application (SPA) to AWS using a structured, multi-stage approach. This repo provides a complete example of Infrastructure as Code (IaC) deployment using Terraform and AWS CLI automation.
+A **demonstration template** showing how to deploy a Single Page Application (SPA) to AWS using a structured, multi-stage approach. This repo provides a complete example of Infrastructure as Code (IaC) deployment using a hybrid approach: AWS CLI for foundational resource discovery and Terraform for application infrastructure.
 
 ## Key Features
 
 - **Multi-stage deployment** - Organized stages from initial setup to production deployment
 - **CloudFront + Lambda architecture** - React frontend via CloudFront CDN, Node.js API via Lambda
 - **Cross-account AWS setup** - Demonstrates infrastructure and hosting account separation
+- **Hybrid tooling approach** - AWS CLI for foundational discovery, Terraform for application infrastructure
 - **Automated deployment scripts** - `deploy.sh` and `destroy.sh` for each stage
 - **Multiple environments** - Support for dev, staging, production environments
 - **Sample applications** - Placeholder and "real" apps for testing infrastructure
@@ -33,6 +34,51 @@ A **demonstration template** showing how to deploy a Single Page Application (SP
 2. Run subsequent stages in order to deploy infrastructure
 3. Each stage has `deploy.sh` and `destroy.sh` scripts
 4. Scripts are idempotent - safe to run multiple times
+
+## Inter-Stage Data Flow
+
+The deployment pipeline uses a **progressive configuration enhancement pattern**:
+
+### How Stages Connect
+1. **Each stage completes** → Creates `output/{project-prefix}-config-{environment}.json`
+2. **Next stage starts** → Automatically copies previous stage's output to its `input/` folder
+3. **Configuration inheritance** → Environment, region, and all baseline data extracted from input file
+4. **Configuration enhancement** → Adds stage-specific data (no re-specification of baseline parameters)
+5. **Enhanced output** → Creates new output combining inherited data with new stage-specific resources
+
+### Example Pipeline Flow
+```bash
+# Stage 00-discovery: Collect ALL baseline parameters
+cd iac/00-discovery
+./deploy.sh -e DEV -p myapp -i infra -h hosting -d app.dev.example.com --vpc-id vpc-12345
+# → Creates: output/myapp-config-dev.json (complete baseline config)
+
+# Stage 01-infra-foundation: Discover/create infrastructure resources (AWS CLI only)
+cd ../01-infra-foundation
+./deploy.sh
+# → Copies: ../00-discovery/output/myapp-config-dev.json → input/myapp-config-dev.json
+# → Extracts environment and region from input configuration
+# → Uses AWS CLI to discover/create IAM roles and SSL certificates
+# → Creates: output/myapp-config-dev.json (enhanced with certificate ARN, role ARNs)
+
+# Stage 02-infra-setup: Configure application infrastructure
+cd ../02-infra-setup  
+./deploy.sh --cdn-price-class PriceClass_100 --lambda-memory 512
+# → Copies: ../01-infra-foundation/output/myapp-config-dev.json → input/myapp-config-dev.json
+# → Extracts environment and region from input configuration
+# → Uses certificate ARN and VPC from previous stages
+# → Creates: output/myapp-config-dev.json (enhanced with app settings)
+```
+
+### Flexible Input Sources
+Each stage supports custom input via `--input-file`:
+```bash
+# Use specific output file from previous stage
+./deploy.sh --input-file /path/to/myapp-config-dev.json
+
+# Use archived output file from previous stage
+./deploy.sh --input-file s3://archive/myapp-config-dev-backup.json
+```
 
 ## Architecture
 
@@ -101,12 +147,12 @@ These paired applications demonstrate how to:
 ```
 ├── packages/           # Sample applications (placeholder + real)
 ├── iac/               # Infrastructure as Code stages
-│   ├── 00-discovery/  # Project configuration
-│   ├── 01-infra-foundation/  # Infrastructure foundation
-│   ├── 02-infra-setup/       # Infrastructure setup
-│   ├── 03-app-deploy/        # Application deployment
-│   └── 04-prod-deploy/       # Production deployment
+│   ├── 00-discovery/  # Project configuration (AWS CLI)
+│   ├── 01-infra-foundation/  # Infrastructure foundation (AWS CLI)
+│   ├── 02-infra-setup/       # Infrastructure setup (Terraform)
+│   ├── 03-app-deploy/        # Application deployment (Terraform)
+│   └── 04-prod-deploy/       # Production deployment (Terraform)
 └── docs/              # Documentation
 ```
 
-Each stage contains independent Terraform configurations and deployment scripts that can be executed in sequence to build the complete infrastructure.
+Each stage contains deployment scripts that can be executed in sequence to build the complete infrastructure. Stage 00 and 01 use AWS CLI for resource discovery and creation, while stages 02+ use Terraform for application infrastructure management.
