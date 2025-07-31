@@ -1,0 +1,40 @@
+{
+  "project": {
+    "prefix": "thuapp",
+    "environment": "sbx",
+    "region": "us-east-1"
+  },
+  "aws": {
+    "infrastructure_profile": "bh-infra",
+    "hosting_profile": "bh-fred-sandbox",
+    "infrastructure_account_id": "953082249352",
+    "hosting_account_id": "415730361381"
+  },
+  "domain": "thuapp.sbx.briskhaven.com",
+  "vpc_id": "vpc-0525f4b966f4e9a78",
+  "terraform": {
+    "backend_bucket": "terraform-state-953082249352-sbx",
+    "backend_table": "terraform-locks-953082249352-sbx"
+  },
+  "resource_naming": {
+    "local_path": "thuapp/sbx",
+    "stage": "01-infra-foundation"
+  },
+  "discovery": {
+    "timestamp": "2025-07-31T12:21:18Z",
+    "validation_complete": true
+  },
+  "foundation": {
+    "timestamp": "2025-07-31T15:50:49Z",
+    "infrastructure_complete": true,
+    "iam_roles": {
+      "cross_account_role_arn": "arn:aws:iam::415730361381:role/thuapp-sbx-cross-account-role",
+      "validation_complete": true
+    },
+    "ssl_certificate": {
+      "certificate_arn": "arn:aws:acm:us-east-1:415730361381:certificate/e40a8527-890a-450c-a6d2-06918faa8dd9",
+      "domain": "thuapp.sbx.briskhaven.com",
+      "validation_complete": true
+    }
+  }
+}
